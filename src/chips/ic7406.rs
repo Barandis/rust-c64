@@ -92,8 +92,9 @@ pub struct Ic7406 {
 }
 
 impl Ic7406 {
-    /// Creates a new Ic7406 hex inverter emulation. The new chip will start with all
-    /// outputs set to high because all inputs are initially level-less.
+    /// Creates a new Ic7406 hex inverter emulation and returns a shared, internally mutable
+    /// reference to it. The new chip will start with all outputs set to high because all
+    /// inputs are initially level-less.
     pub fn new() -> DeviceRef {
         // Dummy pin, used as a spacer to put the index of the first real pin at 1.
         let dummy = pin!(0, "__DUMMY__", Unconnected);
@@ -137,35 +138,36 @@ impl Ic7406 {
         chip
     }
 
-    /// Creates a new Ic7406 hex inverter emulation. This is identical to `new` except that
-    /// this one is coded without the benefit of crate-defined macros or type aliases (the
-    /// vec! macro is still used, but that's standard library). It's here in this struct
-    /// only for demonstration purposes.
+    /// Creates a new Ic7406 hex inverter emulation and returns a shared, internally mutable
+    /// reference to it. This is identical to `new` except that this one is coded without
+    /// the benefit of crate-defined macros or type aliases (the vec! macro is still used,
+    /// but that's standard library). It's here in this struct only for demonstration
+    /// purposes.
     pub fn new_no_macro() -> Rc<RefCell<dyn Device>> {
         // Dummy pin, used as a spacer to put the index of the first real pin at 1.
-        let dummy = Rc::new(RefCell::new(Pin::new(0, "__DUMMY__", Unconnected)));
+        let dummy = Pin::new(0, "__DUMMY__", Unconnected);
 
         // Input pins. In the TI data sheet, these are named "1A", "2A", etc., and the C64
         // schematic does not suggest names for them. Since these names are not legal
         // variable names, we've switched the letter and number.
-        let a1 = Rc::new(RefCell::new(Pin::new(A1, "A1", Input)));
-        let a2 = Rc::new(RefCell::new(Pin::new(A2, "A2", Input)));
-        let a3 = Rc::new(RefCell::new(Pin::new(A3, "A3", Input)));
-        let a4 = Rc::new(RefCell::new(Pin::new(A4, "A4", Input)));
-        let a5 = Rc::new(RefCell::new(Pin::new(A5, "A5", Input)));
-        let a6 = Rc::new(RefCell::new(Pin::new(A6, "A6", Input)));
+        let a1 = Pin::new(A1, "A1", Input);
+        let a2 = Pin::new(A2, "A2", Input);
+        let a3 = Pin::new(A3, "A3", Input);
+        let a4 = Pin::new(A4, "A4", Input);
+        let a5 = Pin::new(A5, "A5", Input);
+        let a6 = Pin::new(A6, "A6", Input);
 
         // Output pins. Similarly, the TI data sheet refers to these as "1Y", "2Y", etc.
-        let y1 = Rc::new(RefCell::new(Pin::new(Y1, "Y1", Output)));
-        let y2 = Rc::new(RefCell::new(Pin::new(Y2, "Y2", Output)));
-        let y3 = Rc::new(RefCell::new(Pin::new(Y3, "Y3", Output)));
-        let y4 = Rc::new(RefCell::new(Pin::new(Y4, "Y4", Output)));
-        let y5 = Rc::new(RefCell::new(Pin::new(Y5, "Y5", Output)));
-        let y6 = Rc::new(RefCell::new(Pin::new(Y6, "Y6", Output)));
+        let y1 = Pin::new(Y1, "Y1", Output);
+        let y2 = Pin::new(Y2, "Y2", Output);
+        let y3 = Pin::new(Y3, "Y3", Output);
+        let y4 = Pin::new(Y4, "Y4", Output);
+        let y5 = Pin::new(Y5, "Y5", Output);
+        let y6 = Pin::new(Y6, "Y6", Output);
 
         // Power supply and ground pins, not emulated
-        let gnd = Rc::new(RefCell::new(Pin::new(GND, "GND", Unconnected)));
-        let vcc = Rc::new(RefCell::new(Pin::new(VCC, "VCC", Unconnected)));
+        let gnd = Pin::new(GND, "GND", Unconnected);
+        let vcc = Pin::new(VCC, "VCC", Unconnected);
 
         // All outputs begin high since all of the inputs begin non-high.
         y1.borrow_mut().set();

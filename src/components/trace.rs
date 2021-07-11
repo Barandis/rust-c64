@@ -46,16 +46,16 @@ pub struct Trace {
 }
 
 impl Trace {
-    /// Creates a new trace from a vector of pins that are connected to it. Its initial
-    /// level will depend on the levels of the output pins in that vector (if there are
-    /// none, the trace's level will be `None`). It's initial float value will be `None`
-    /// (i.e., not pulled up or down).
-    pub fn new(pins: Vec<PinRef>) -> Trace {
-        Trace {
+    /// Creates a new trace from a vector of pins that are connected to it and returns a
+    /// shared, internally mutable reference to it. Its initial level will depend on the
+    /// levels of the output pins in that vector (if there are none, the trace's level will
+    /// be `None`). It's initial float value will be `None` (i.e., not pulled up or down).
+    pub fn new(pins: Vec<PinRef>) -> TraceRef {
+        Rc::new(RefCell::new(Trace {
             pins,
             float: None,
             level: None,
-        }
+        }))
     }
 
     /// Calculates what the level of the trace should be based on the value it's being set

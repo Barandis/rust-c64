@@ -5,9 +5,7 @@
 
 macro_rules! pin {
     ($number:expr, $name:expr, $mode:expr $(,)?) => {
-        std::rc::Rc::new(std::cell::RefCell::new($crate::components::pin::Pin::new(
-            $number, $name, $mode,
-        )))
+        $crate::components::pin::Pin::new($number, $name, $mode)
     };
 }
 
@@ -21,9 +19,9 @@ macro_rules! trace {
     ($($pin:expr),* $(,)?) => {
         {
             let v = vec![$(std::rc::Rc::clone(&$pin)),*];
-            let t = std::rc::Rc::new(std::cell::RefCell::new($crate::components::trace::Trace::new(
+            let t = $crate::components::trace::Trace::new(
                 v.clone()
-            )));
+            );
             for p in v.iter() {
                 p.borrow_mut().set_trace(std::rc::Rc::clone(&t));
             }

@@ -102,10 +102,10 @@ fn normalize(level: Option<f64>, float: Option<f64>) -> Option<f64> {
 }
 
 impl Pin {
-    /// Creates a new pin. The pin will be in the supplied state with a level and float
-    /// level of `None`.
-    pub fn new(number: usize, name: &'static str, mode: Mode) -> Pin {
-        Pin {
+    /// Creates a new pin and returns a shared, internally mutable reference to it. The pin
+    /// will be in the supplied state with a level and float level of `None`.
+    pub fn new(number: usize, name: &'static str, mode: Mode) -> PinRef {
+        Rc::new(RefCell::new(Pin {
             number,
             name,
             mode,
@@ -113,7 +113,7 @@ impl Pin {
             level: None,
             trace: None,
             device: None,
-        }
+        }))
     }
 
     /// Sets the pin's connected trace. This trace must be wrapped in an `Rc`'d `RefCell`
@@ -378,13 +378,13 @@ mod test {
     #[test]
     fn has_number() {
         let pin = Pin::new(1, "A", Unconnected);
-        assert_eq!(pin.number(), 1);
+        assert_eq!(pin.borrow().number(), 1);
     }
 
     #[test]
     fn has_name() {
         let pin = Pin::new(1, "A", Unconnected);
-        assert_eq!(pin.name(), "A");
+        assert_eq!(pin.borrow().name(), "A");
     }
 
     #[test]
@@ -394,36 +394,36 @@ mod test {
         let p3 = Pin::new(3, "C", Output);
         let p4 = Pin::new(4, "D", Bidirectional);
 
-        assert_eq!(p1.mode(), Unconnected);
-        assert!(!p1.input());
-        assert!(!p1.output());
+        assert_eq!(p1.borrow().mode(), Unconnected);
+        assert!(!p1.borrow().input());
+        assert!(!p1.borrow().output());
 
-        assert_eq!(p2.mode(), Input);
-        assert!(p2.input());
-        assert!(!p2.output());
+        assert_eq!(p2.borrow().mode(), Input);
+        assert!(p2.borrow().input());
+        assert!(!p2.borrow().output());
 
-        assert_eq!(p3.mode(), Output);
-        assert!(!p3.input());
-        assert!(p3.output());
+        assert_eq!(p3.borrow().mode(), Output);
+        assert!(!p3.borrow().input());
+        assert!(p3.borrow().output());
 
-        assert_eq!(p4.mode(), Bidirectional);
-        assert!(p4.input());
-        assert!(p4.output());
+        assert_eq!(p4.borrow().mode(), Bidirectional);
+        assert!(p4.borrow().input());
+        assert!(p4.borrow().output());
     }
 
     #[test]
     fn mode_change() {
-        let mut p = Pin::new(1, "A", Unconnected);
-        assert_eq!(p.mode(), Unconnected);
+        let p = Pin::new(1, "A", Unconnected);
+        assert_eq!(p.borrow().mode(), Unconnected);
 
-        p.set_mode(Input);
-        assert_eq!(p.mode(), Input);
+        p.borrow_mut().set_mode(Input);
+        assert_eq!(p.borrow().mode(), Input);
 
-        p.set_mode(Output);
-        assert_eq!(p.mode(), Output);
+        p.borrow_mut().set_mode(Output);
+        assert_eq!(p.borrow().mode(), Output);
 
-        p.set_mode(Bidirectional);
-        assert_eq!(p.mode(), Bidirectional);
+        p.borrow_mut().set_mode(Bidirectional);
+        assert_eq!(p.borrow().mode(), Bidirectional);
     }
 
     #[test]
@@ -496,37 +496,37 @@ mod test {
 
     #[test]
     fn level_no_trace() {
-        let mut p = Pin::new(1, "A", Input);
-        assert!(p.level().is_none());
-        assert!(!p.high());
-        assert!(!p.low());
-        assert!(p.floating());
+        let p = Pin::new(1, "A", Input);
+        assert!(p.borrow().level().is_none());
+        assert!(!p.borrow().high());
+        assert!(!p.borrow().low());
+        assert!(p.borrow().floating());
 
-        p.set_level(Some(1.0));
-        assert_eq!(p.level().unwrap(), 1.0);
-        assert!(p.high());
-        assert!(!p.low());
-        assert!(!p.floating());
+        p.borrow_mut().set_level(Some(1.0));
+        assert_eq!(p.borrow().level().unwrap(), 1.0);
+        assert!(p.borrow().high());
+        assert!(!p.borrow().low());
+        assert!(!p.borrow().floating());
 
-        p.set_level(Some(0.0));
-        assert_eq!(p.level().unwrap(), 0.0);
-        assert!(!p.high());
-        assert!(p.low());
-        assert!(!p.floating());
+        p.borrow_mut().set_level(Some(0.0));
+        assert_eq!(p.borrow().level().unwrap(), 0.0);
+        assert!(!p.borrow().high());
+        assert!(p.borrow().low());
+        assert!(!p.borrow().floating());
 
-        p.set_level(Some(0.25));
-        assert_eq!(p.level().unwrap(), 0.25);
-        assert!(!p.high());
-        assert!(p.low());
-        assert!(!p.floating());
+        p.borrow_mut().set_level(Some(0.25));
+        assert_eq!(p.borrow().level().unwrap(), 0.25);
+        assert!(!p.borrow().high());
+        assert!(p.borrow().low());
+        assert!(!p.borrow().floating());
     }
 
     #[test]
     fn level_update_no_trace() {
-        let mut p = Pin::new(1, "A", Input);
-        p.set();
-        p.update(None);
-        assert!(p.level().is_none());
+        let p = Pin::new(1, "A", Input);
+        p.borrow_mut().set();
+        p.borrow_mut().update(None);
+        assert!(p.borrow().level().is_none());
     }
 
     #[test]
