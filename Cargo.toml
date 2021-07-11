@@ -1,13 +1,12 @@
 [package]
-name = "nes"
+name = "c64"
 version = "0.1.0"
-authors = ["Thomas Otterson <barandis1729@gmail.com>"]
+authors = ["Thomas Otterson <tjotterson@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dev-dependencies]
-criterion = "0.3.2"
+rand = "0.8.3"
 
 [dependencies]
-sdl2 = "0.34.0"
