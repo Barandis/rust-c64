@@ -3,6 +3,10 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+// Note that the imports for std::rc::Rc, std::cell::RefCell, and
+// crate::components::pin::Pin are only necessary because of the demo non-macro constructor
+// function.
+
 use std::{cell::RefCell, rc::Rc};
 
 use crate::components::{
@@ -13,36 +17,40 @@ use crate::components::{
     },
 };
 
-/// The pin assignment for the input of inverter 1.
-pub const A1: usize = 1;
-/// The pin assignment for the input of inverter 2.
-pub const A2: usize = 3;
-/// The pin assignment for the input of inverter 3.
-pub const A3: usize = 5;
-/// The pin assignment for the input of inverter 4.
-pub const A4: usize = 9;
-/// The pin assignment for the input of inverter 5.
-pub const A5: usize = 11;
-/// The pin assignment for the input of inverter 6.
-pub const A6: usize = 13;
+mod constants {
+    /// The pin assignment for the input of inverter 1.
+    pub const A1: usize = 1;
+    /// The pin assignment for the input of inverter 2.
+    pub const A2: usize = 3;
+    /// The pin assignment for the input of inverter 3.
+    pub const A3: usize = 5;
+    /// The pin assignment for the input of inverter 4.
+    pub const A4: usize = 9;
+    /// The pin assignment for the input of inverter 5.
+    pub const A5: usize = 11;
+    /// The pin assignment for the input of inverter 6.
+    pub const A6: usize = 13;
 
-/// The pin assignment for the output of inverter 1.
-pub const Y1: usize = 2;
-/// The pin assignment for the output of inverter 2.
-pub const Y2: usize = 4;
-/// The pin assignment for the output of inverter 3.
-pub const Y3: usize = 6;
-/// The pin assignment for the output of inverter 4.
-pub const Y4: usize = 8;
-/// The pin assignment for the output of inverter 5.
-pub const Y5: usize = 10;
-/// The pin assignment for the output of inverter 6.
-pub const Y6: usize = 12;
+    /// The pin assignment for the output of inverter 1.
+    pub const Y1: usize = 2;
+    /// The pin assignment for the output of inverter 2.
+    pub const Y2: usize = 4;
+    /// The pin assignment for the output of inverter 3.
+    pub const Y3: usize = 6;
+    /// The pin assignment for the output of inverter 4.
+    pub const Y4: usize = 8;
+    /// The pin assignment for the output of inverter 5.
+    pub const Y5: usize = 10;
+    /// The pin assignment for the output of inverter 6.
+    pub const Y6: usize = 12;
 
-/// The pin assignment for the ground.
-pub const GND: usize = 7;
-/// The pin assignment for the +5V power supply.
-pub const VCC: usize = 14;
+    /// The pin assignment for the ground.
+    pub const GND: usize = 7;
+    /// The pin assignment for the +5V power supply.
+    pub const VCC: usize = 14;
+}
+
+use self::constants::*;
 
 /// Maps each input pin assignment ot its corresponding output pin assignment.
 fn output(input: usize) -> usize {
