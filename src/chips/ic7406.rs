@@ -124,23 +124,7 @@ impl Ic7406 {
         set!(y1, y2, y3, y4, y5, y6);
 
         let chip: DeviceRef = newref!(Ic7406 {
-            pins: vec![
-                cloneref!(dummy),
-                cloneref!(a1),
-                cloneref!(y1),
-                cloneref!(a2),
-                cloneref!(y2),
-                cloneref!(a3),
-                cloneref!(y3),
-                cloneref!(gnd),
-                cloneref!(y4),
-                cloneref!(a4),
-                cloneref!(y5),
-                cloneref!(a5),
-                cloneref!(y6),
-                cloneref!(a6),
-                cloneref!(vcc),
-            ],
+            pins: pins![dummy, a1, y1, a2, y2, a3, y3, gnd, y4, a4, y5, a5, y6, a6, vcc],
         });
 
         attach!(a1, cloneref!(chip));

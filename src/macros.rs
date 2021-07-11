@@ -11,6 +11,12 @@ macro_rules! pin {
     };
 }
 
+macro_rules! pins {
+    ($($pin:expr),* $(,)?) => {
+        vec![$(std::rc::Rc::clone(&$pin)),*]
+    }
+}
+
 macro_rules! trace {
     ($($pin:expr),* $(,)?) => {
         {
