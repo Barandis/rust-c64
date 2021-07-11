@@ -97,8 +97,8 @@ macro_rules! set {
 }
 
 macro_rules! clear {
-    ($pt:expr $(,)?) => {
-        $pt.borrow_mut().clear()
+    ($($pt:expr),* $(,)?) => {
+        $($pt.borrow_mut().clear();)*
     };
 }
 

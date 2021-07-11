@@ -4,3 +4,4 @@
 // https://opensource.org/licenses/MIT
 
 pub mod ic7406;
+pub mod ic7408;

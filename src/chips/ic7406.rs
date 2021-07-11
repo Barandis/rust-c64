@@ -7,17 +7,8 @@
 // crate::components::pin::Pin are only necessary because of the demo non-macro constructor
 // function.
 
-use std::{cell::RefCell, rc::Rc};
-
-use crate::components::{
-    device::{Device, DeviceRef, LevelChangeEvent},
-    pin::{
-        Mode::{Input, Output, Unconnected},
-        Pin, PinRef,
-    },
-};
-
-mod constants {
+/// Pin assignment constants for the Ic7406 struct.
+pub mod constants {
     /// The pin assignment for the input of inverter 1.
     pub const A1: usize = 1;
     /// The pin assignment for the input of inverter 2.
@@ -44,11 +35,21 @@ mod constants {
     /// The pin assignment for the output of inverter 6.
     pub const Y6: usize = 12;
 
-    /// The pin assignment for the ground.
-    pub const GND: usize = 7;
     /// The pin assignment for the +5V power supply.
     pub const VCC: usize = 14;
+    /// The pin assignment for the ground.
+    pub const GND: usize = 7;
 }
+
+use std::{cell::RefCell, rc::Rc};
+
+use crate::components::{
+    device::{Device, DeviceRef, LevelChangeEvent},
+    pin::{
+        Mode::{Input, Output, Unconnected},
+        Pin, PinRef,
+    },
+};
 
 use self::constants::*;
 
@@ -247,6 +248,18 @@ mod test {
 
     use super::*;
 
+    macro_rules! l_message {
+        ($gate:expr) => {
+            "Y$gate should be high when A$gate is low"
+        };
+    }
+
+    macro_rules! h_message {
+        ($gate:expr) => {
+            "Y$gate should be low when A$gate is high"
+        };
+    }
+
     #[test]
     fn input_high() {
         let chip = Ic7406::new();
@@ -254,22 +267,22 @@ mod test {
         let tr = make_traces(&chip);
 
         set!(tr[A1]);
-        assert!(low!(tr[Y1]));
+        assert!(low!(tr[Y1]), h_message!(1));
 
         set!(tr[A2]);
-        assert!(low!(tr[Y2]));
+        assert!(low!(tr[Y2]), h_message!(2));
 
         set!(tr[A3]);
-        assert!(low!(tr[Y3]));
+        assert!(low!(tr[Y3]), h_message!(3));
 
         set!(tr[A4]);
-        assert!(low!(tr[Y4]));
+        assert!(low!(tr[Y4]), h_message!(4));
 
         set!(tr[A5]);
-        assert!(low!(tr[Y5]));
+        assert!(low!(tr[Y5]), h_message!(5));
 
         set!(tr[A6]);
-        assert!(low!(tr[Y6]));
+        assert!(low!(tr[Y6]), h_message!(6));
     }
 
     #[test]
@@ -279,22 +292,22 @@ mod test {
         let tr = make_traces(&chip);
 
         clear!(tr[A1]);
-        assert!(high!(tr[Y1]));
+        assert!(high!(tr[Y1]), l_message!(1));
 
         clear!(tr[A2]);
-        assert!(high!(tr[Y2]));
+        assert!(high!(tr[Y2]), l_message!(2));
 
         clear!(tr[A3]);
-        assert!(high!(tr[Y3]));
+        assert!(high!(tr[Y3]), l_message!(3));
 
         clear!(tr[A4]);
-        assert!(high!(tr[Y4]));
+        assert!(high!(tr[Y4]), l_message!(4));
 
         clear!(tr[A5]);
-        assert!(high!(tr[Y5]));
+        assert!(high!(tr[Y5]), l_message!(5));
 
         clear!(tr[A6]);
-        assert!(high!(tr[Y6]));
+        assert!(high!(tr[Y6]), l_message!(6));
     }
 
     // Duplicate tests using no macros. These use the non-macro creation function as well
@@ -308,22 +321,22 @@ mod test {
         let tr = make_traces(&chip);
 
         tr[A1].borrow_mut().set();
-        assert!(tr[Y1].borrow().low());
+        assert!(tr[Y1].borrow().low(), "Y1 should be low when A1 is high");
 
         tr[A2].borrow_mut().set();
-        assert!(tr[Y2].borrow().low());
+        assert!(tr[Y2].borrow().low(), "Y2 should be low when A2 is high");
 
         tr[A3].borrow_mut().set();
-        assert!(tr[Y3].borrow().low());
+        assert!(tr[Y3].borrow().low(), "Y3 should be low when A3 is high");
 
         tr[A4].borrow_mut().set();
-        assert!(tr[Y4].borrow().low());
+        assert!(tr[Y4].borrow().low(), "Y4 should be low when A4 is high");
 
         tr[A5].borrow_mut().set();
-        assert!(tr[Y5].borrow().low());
+        assert!(tr[Y5].borrow().low(), "Y5 should be low when A5 is high");
 
         tr[A6].borrow_mut().set();
-        assert!(tr[Y6].borrow().low());
+        assert!(tr[Y6].borrow().low(), "Y6 should be low when A6 is high");
     }
 
     #[test]
@@ -333,21 +346,21 @@ mod test {
         let tr = make_traces(&chip);
 
         tr[A1].borrow_mut().clear();
-        assert!(tr[Y1].borrow().high());
+        assert!(tr[Y1].borrow().high(), "Y1 should be high when A1 is low");
 
         tr[A2].borrow_mut().clear();
-        assert!(tr[Y2].borrow().high());
+        assert!(tr[Y2].borrow().high(), "Y2 should be high when A2 is low");
 
         tr[A3].borrow_mut().clear();
-        assert!(tr[Y3].borrow().high());
+        assert!(tr[Y3].borrow().high(), "Y3 should be high when A3 is low");
 
         tr[A4].borrow_mut().clear();
-        assert!(tr[Y4].borrow().high());
+        assert!(tr[Y4].borrow().high(), "Y4 should be high when A4 is low");
 
         tr[A5].borrow_mut().clear();
-        assert!(tr[Y5].borrow().high());
+        assert!(tr[Y5].borrow().high(), "Y5 should be high when A5 is low");
 
         tr[A6].borrow_mut().clear();
-        assert!(tr[Y6].borrow().high());
+        assert!(tr[Y6].borrow().high(), "Y6 should be high when A6 is low");
     }
 }
