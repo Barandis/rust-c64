@@ -48,12 +48,6 @@ macro_rules! get_pin {
     };
 }
 
-macro_rules! self_pin {
-    ($index:expr $(,)?) => {
-        self.pins[$index]
-    };
-}
-
 macro_rules! number {
     ($pin:expr $(,)?) => {
         $pin.borrow().number()
