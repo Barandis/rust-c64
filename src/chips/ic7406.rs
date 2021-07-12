@@ -53,19 +53,6 @@ use crate::components::{
 
 use self::constants::*;
 
-/// Maps each input pin assignment ot its corresponding output pin assignment.
-fn output(input: usize) -> usize {
-    match input {
-        A1 => Y1,
-        A2 => Y2,
-        A3 => Y3,
-        A4 => Y4,
-        A5 => Y5,
-        A6 => Y6,
-        _ => 0,
-    }
-}
-
 /// An emulation of the 7406 hex inverter.
 ///
 /// The 7406 is one of the 7400-series TTL logic chips, consisting of six single-input
@@ -133,16 +120,16 @@ impl Ic7406 {
         // All outputs begin high since all of the inputs begin non-high.
         set!(y1, y2, y3, y4, y5, y6);
 
-        let chip: DeviceRef = newref!(Ic7406 {
+        let chip: DeviceRef = new_ref!(Ic7406 {
             pins: pins![dummy, a1, y1, a2, y2, a3, y3, gnd, y4, a4, y5, a5, y6, a6, vcc],
         });
 
-        attach!(a1, cloneref!(chip));
-        attach!(a2, cloneref!(chip));
-        attach!(a3, cloneref!(chip));
-        attach!(a4, cloneref!(chip));
-        attach!(a5, cloneref!(chip));
-        attach!(a6, cloneref!(chip));
+        attach!(a1, clone_ref!(chip));
+        attach!(a2, clone_ref!(chip));
+        attach!(a3, clone_ref!(chip));
+        attach!(a4, clone_ref!(chip));
+        attach!(a5, clone_ref!(chip));
+        attach!(a6, clone_ref!(chip));
 
         chip
     }
@@ -217,6 +204,19 @@ impl Ic7406 {
     }
 }
 
+/// Maps each input pin assignment ot its corresponding output pin assignment.
+fn output(input: usize) -> usize {
+    match input {
+        A1 => Y1,
+        A2 => Y2,
+        A3 => Y3,
+        A4 => Y4,
+        A5 => Y5,
+        A6 => Y6,
+        _ => 0,
+    }
+}
+
 impl Device for Ic7406 {
     fn pins(&self) -> Vec<PinRef> {
         self.pins.clone()
@@ -228,13 +228,11 @@ impl Device for Ic7406 {
 
     fn update(&mut self, event: &LevelChangeEvent) {
         match event {
-            LevelChangeEvent(p, _, level)
-                if *p == A1 || *p == A2 || *p == A3 || *p == A4 || *p == A5 || *p == A6 =>
-            {
-                let opin = output(*p);
+            LevelChangeEvent(p, _, level) if vec![A1, A2, A3, A4, A5, A6].contains(p) => {
+                let o = clone_ref!(self.pins[output(*p)]);
                 match level {
-                    Some(value) if *value >= 0.5 => clear!(self.pins[opin]),
-                    _ => set!(self.pins[opin]),
+                    Some(value) if *value >= 0.5 => clear!(o),
+                    _ => set!(o),
                 }
             }
             _ => (),
@@ -248,18 +246,6 @@ mod test {
 
     use super::*;
 
-    macro_rules! l_message {
-        ($gate:expr) => {
-            "Y$gate should be high when A$gate is low"
-        };
-    }
-
-    macro_rules! h_message {
-        ($gate:expr) => {
-            "Y$gate should be low when A$gate is high"
-        };
-    }
-
     #[test]
     fn input_high() {
         let chip = Ic7406::new();
@@ -267,22 +253,22 @@ mod test {
         let tr = make_traces(&chip);
 
         set!(tr[A1]);
-        assert!(low!(tr[Y1]), h_message!(1));
+        assert!(low!(tr[Y1]), "Y1 should be low when A1 is high");
 
         set!(tr[A2]);
-        assert!(low!(tr[Y2]), h_message!(2));
+        assert!(low!(tr[Y2]), "Y2 should be low when A2 is high");
 
         set!(tr[A3]);
-        assert!(low!(tr[Y3]), h_message!(3));
+        assert!(low!(tr[Y3]), "Y3 should be low when A3 is high");
 
         set!(tr[A4]);
-        assert!(low!(tr[Y4]), h_message!(4));
+        assert!(low!(tr[Y4]), "Y4 should be low when A4 is high");
 
         set!(tr[A5]);
-        assert!(low!(tr[Y5]), h_message!(5));
+        assert!(low!(tr[Y5]), "Y5 should be low when A5 is high");
 
         set!(tr[A6]);
-        assert!(low!(tr[Y6]), h_message!(6));
+        assert!(low!(tr[Y6]), "Y6 should be low when A6 is high");
     }
 
     #[test]
@@ -292,22 +278,22 @@ mod test {
         let tr = make_traces(&chip);
 
         clear!(tr[A1]);
-        assert!(high!(tr[Y1]), l_message!(1));
+        assert!(high!(tr[Y1]), "Y1 should be high when A1 is low");
 
         clear!(tr[A2]);
-        assert!(high!(tr[Y2]), l_message!(2));
+        assert!(high!(tr[Y2]), "Y2 should be high when A2 is low");
 
         clear!(tr[A3]);
-        assert!(high!(tr[Y3]), l_message!(3));
+        assert!(high!(tr[Y3]), "Y3 should be high when A3 is low");
 
         clear!(tr[A4]);
-        assert!(high!(tr[Y4]), l_message!(4));
+        assert!(high!(tr[Y4]), "Y4 should be high when A4 is low");
 
         clear!(tr[A5]);
-        assert!(high!(tr[Y5]), l_message!(5));
+        assert!(high!(tr[Y5]), "Y5 should be high when A5 is low");
 
         clear!(tr[A6]);
-        assert!(high!(tr[Y6]), l_message!(6));
+        assert!(high!(tr[Y6]), "Y6 should be high when A6 is low");
     }
 
     // Duplicate tests using no macros. These use the non-macro creation function as well

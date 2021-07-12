@@ -48,20 +48,6 @@ use crate::components::{
 
 use self::constants::*;
 
-fn input_output(input: usize) -> (usize, usize) {
-    match input {
-        A1 => (B1, Y1),
-        B1 => (A1, Y1),
-        A2 => (B2, Y2),
-        B2 => (A2, Y2),
-        A3 => (B3, Y3),
-        B3 => (A3, Y3),
-        A4 => (B4, Y4),
-        B4 => (A4, Y4),
-        _ => (0, 0),
-    }
-}
-
 /// An emulation of the 7408 quad two-input AND gate.
 ///
 /// The 7408 is one of the 7400-series TTL logic circuits, consisting of four dual-input AND
@@ -102,6 +88,9 @@ pub struct Ic7408 {
 }
 
 impl Ic7408 {
+    /// Creates a new Ic7408 quad 2-input AND gate emulation and returns a shared,
+    /// internally mutable reference to it. The new chip will start with all outputs set to
+    /// low because none of the gates have both inputs initially set to high.
     pub fn new() -> DeviceRef {
         // Dummy pin, used as a spacer to put the index of the first real pin at 1.
         let dummy = pin!(0, "__DUMMY__", Unconnected);
@@ -133,20 +122,36 @@ impl Ic7408 {
         // All output pins begin low because none have any high inputs.
         clear!(y1, y2, y3, y4);
 
-        let chip: DeviceRef = newref!(Ic7408 {
+        let chip: DeviceRef = new_ref!(Ic7408 {
             pins: pins![dummy, a1, b1, y1, a2, b2, y2, gnd, y3, a3, b3, y4, a4, b4, vcc],
         });
 
-        attach!(a1, cloneref!(chip));
-        attach!(b1, cloneref!(chip));
-        attach!(a2, cloneref!(chip));
-        attach!(b2, cloneref!(chip));
-        attach!(a3, cloneref!(chip));
-        attach!(b3, cloneref!(chip));
-        attach!(a4, cloneref!(chip));
-        attach!(b4, cloneref!(chip));
+        attach!(a1, clone_ref!(chip));
+        attach!(b1, clone_ref!(chip));
+        attach!(a2, clone_ref!(chip));
+        attach!(b2, clone_ref!(chip));
+        attach!(a3, clone_ref!(chip));
+        attach!(b3, clone_ref!(chip));
+        attach!(a4, clone_ref!(chip));
+        attach!(b4, clone_ref!(chip));
 
         chip
+    }
+}
+
+/// Maps each input pin assignment to a tuple of its gate's other input pin assignment and
+/// its gate's output pin assignment.
+fn input_output(input: usize) -> (usize, usize) {
+    match input {
+        A1 => (B1, Y1),
+        B1 => (A1, Y1),
+        A2 => (B2, Y2),
+        B2 => (A2, Y2),
+        A3 => (B3, Y3),
+        B3 => (A3, Y3),
+        A4 => (B4, Y4),
+        B4 => (A4, Y4),
+        _ => (0, 0),
     }
 }
 
@@ -161,28 +166,19 @@ impl Device for Ic7408 {
 
     fn update(&mut self, event: &LevelChangeEvent) {
         match event {
-            LevelChangeEvent(p, _, level)
-                if *p == A1
-                    || *p == B1
-                    || *p == A2
-                    || *p == B2
-                    || *p == A3
-                    || *p == B3
-                    || *p == A4
-                    || *p == B4 =>
-            {
+            LevelChangeEvent(p, _, level) if vec![A1, A2, A3, A4, B1, B2, B3, B4].contains(p) => {
                 match level {
                     Some(value) if *value >= 0.5 => {
-                        let (ipin, opin) = input_output(*p);
-                        if high!(self.pins[ipin]) {
-                            set!(self.pins[opin]);
+                        let (i, o) = input_output(*p);
+                        if high!(self.pins[i]) {
+                            set!(self.pins[o]);
                         } else {
-                            clear!(self.pins[opin]);
+                            clear!(self.pins[o]);
                         }
                     }
                     _ => {
-                        let (_, opin) = input_output(*p);
-                        clear!(self.pins[opin]);
+                        let (_, o) = input_output(*p);
+                        clear!(self.pins[o]);
                     }
                 }
             }
@@ -197,30 +193,6 @@ mod test {
 
     use super::*;
 
-    macro_rules! ll_message {
-        ($gate:expr) => {
-            "Y$gate should be low when A$gate and B$gate are both low"
-        };
-    }
-
-    macro_rules! lh_message {
-        ($gate:expr) => {
-            "Y$gate should be low when A$gate is low and B$gate is high"
-        };
-    }
-
-    macro_rules! hl_message {
-        ($gate:expr) => {
-            "Y$gate should be low when A$gate is high and B$gate is low"
-        };
-    }
-
-    macro_rules! hh_message {
-        ($gate:expr) => {
-            "Y$gate should be high when A$gate and B$gate are both high"
-        };
-    }
-
     #[test]
     fn gate_1() {
         let chip = Ic7408::new();
@@ -228,19 +200,28 @@ mod test {
 
         clear!(tr[A1]);
         clear!(tr[B1]);
-        assert!(low!(tr[Y1]), ll_message!(1));
+        assert!(low!(tr[Y1]), "Y1 should be low when A1 and B1 are both low");
 
         clear!(tr[A1]);
         set!(tr[B1]);
-        assert!(low!(tr[Y1]), lh_message!(1));
+        assert!(
+            low!(tr[Y1]),
+            "Y1 should be low when A1 is low and B1 is high"
+        );
 
         set!(tr[A1]);
         clear!(tr[B1]);
-        assert!(low!(tr[Y1]), hl_message!(1));
+        assert!(
+            low!(tr[Y1]),
+            "Y1 should be low when A1 is high and B1 is low"
+        );
 
         set!(tr[A1]);
         set!(tr[B1]);
-        assert!(high!(tr[Y1]), hh_message!(1));
+        assert!(
+            high!(tr[Y1]),
+            "Y1 should be high when A1 and B1 are both high"
+        );
     }
 
     #[test]
@@ -250,19 +231,28 @@ mod test {
 
         clear!(tr[A2]);
         clear!(tr[B2]);
-        assert!(low!(tr[Y2]), ll_message!(2));
+        assert!(low!(tr[Y2]), "Y2 should be low when A2 and B2 are both low");
 
         clear!(tr[A2]);
         set!(tr[B2]);
-        assert!(low!(tr[Y2]), lh_message!(2));
+        assert!(
+            low!(tr[Y2]),
+            "Y2 should be low when A2 is low and B2 is high"
+        );
 
         set!(tr[A2]);
         clear!(tr[B2]);
-        assert!(low!(tr[Y2]), hl_message!(2));
+        assert!(
+            low!(tr[Y2]),
+            "Y2 should be low when A2 is high and B2 is low"
+        );
 
         set!(tr[A2]);
         set!(tr[B2]);
-        assert!(high!(tr[Y2]), hh_message!(2));
+        assert!(
+            high!(tr[Y2]),
+            "Y2 should be high when A2 and B2 are both high"
+        );
     }
 
     #[test]
@@ -272,19 +262,28 @@ mod test {
 
         clear!(tr[A3]);
         clear!(tr[B3]);
-        assert!(low!(tr[Y3]), ll_message!(3));
+        assert!(low!(tr[Y3]), "Y3 should be low when A3 and B3 are both low");
 
         clear!(tr[A3]);
         set!(tr[B3]);
-        assert!(low!(tr[Y3]), lh_message!(3));
+        assert!(
+            low!(tr[Y3]),
+            "Y3 should be low when A3 is low and B3 is high"
+        );
 
         set!(tr[A3]);
         clear!(tr[B3]);
-        assert!(low!(tr[Y3]), hl_message!(3));
+        assert!(
+            low!(tr[Y3]),
+            "Y3 should be low when A3 is high and B3 is low"
+        );
 
         set!(tr[A3]);
         set!(tr[B3]);
-        assert!(high!(tr[Y3]), hh_message!(3));
+        assert!(
+            high!(tr[Y3]),
+            "Y3 should be high when A3 and B3 are both high"
+        );
     }
 
     #[test]
@@ -294,18 +293,27 @@ mod test {
 
         clear!(tr[A4]);
         clear!(tr[B4]);
-        assert!(low!(tr[Y4]), ll_message!(4));
+        assert!(low!(tr[Y4]), "Y4 should be low when A4 and B4 are both low");
 
         clear!(tr[A4]);
         set!(tr[B4]);
-        assert!(low!(tr[Y4]), lh_message!(4));
+        assert!(
+            low!(tr[Y4]),
+            "Y4 should be low when A4 is low and B4 is high"
+        );
 
         set!(tr[A4]);
         clear!(tr[B4]);
-        assert!(low!(tr[Y4]), hl_message!(4));
+        assert!(
+            low!(tr[Y4]),
+            "Y4 should be low when A4 is high and B4 is low"
+        );
 
         set!(tr[A4]);
         set!(tr[B4]);
-        assert!(high!(tr[Y4]), hh_message!(4));
+        assert!(
+            high!(tr[Y4]),
+            "Y4 should be high when A4 and B4 are both high"
+        );
     }
 }

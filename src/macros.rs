@@ -30,13 +30,13 @@ macro_rules! trace {
     };
 }
 
-macro_rules! newref {
+macro_rules! new_ref {
     ($obj:expr $(,)?) => {
         std::rc::Rc::new(std::cell::RefCell::new($obj))
     };
 }
 
-macro_rules! cloneref {
+macro_rules! clone_ref {
     ($obj:expr $(,)?) => {
         std::rc::Rc::clone(&$obj)
     };
@@ -45,6 +45,12 @@ macro_rules! cloneref {
 macro_rules! get_pin {
     ($device:expr, $index:expr $(,)?) => {
         $device.borrow().pins()[$index]
+    };
+}
+
+macro_rules! self_pin {
+    ($index:expr $(,)?) => {
+        self.pins[$index]
     };
 }
 
