@@ -108,10 +108,9 @@ pub struct Ic4066 {
 }
 
 impl Ic4066 {
+    /// Creates a new 4066 quad bilateral switch emulation and returns a shared, internally
+    /// mutable reference to it.
     pub fn new() -> DeviceRef {
-        // Dummy pin, used as a spacer to put the index of the first real pin at 1.
-        let dummy = pin!(0, "__DUMMY__", Unconnected);
-
         // I/O and control pins for switch 1
         let a1 = pin!(A1, "A1", Bidirectional);
         let b1 = pin!(B1, "B1", Bidirectional);
@@ -139,7 +138,7 @@ impl Ic4066 {
         let last = vec![None, None, None, None];
 
         let chip: DeviceRef = new_ref!(Ic4066 {
-            pins: pins![dummy, a1, b1, a2, b2, x2, x3, vss, b3, a3, b4, a4, x4, x1, vdd],
+            pins: pins![a1, a2, a3, a4, b1, b2, b3, b4, x1, x2, x3, x4, vdd, vss],
             last,
         });
 

@@ -125,10 +125,9 @@ pub struct Ic74139 {
 }
 
 impl Ic74139 {
+    /// Creates a new 74139 dual 2-to-4 demultiplexer emulation and returns a shared,
+    /// internally mutable reference to it.
     pub fn new() -> DeviceRef {
-        // Dummy pin, used as a spacer to put the index of the first real pin at 1.
-        let dummy = pin!(0, "__DUMMY__", Unconnected);
-
         // Demultiplexer 1
         let a1 = pin!(A1, "A1", Input);
         let b1 = pin!(B1, "B1", Input);
@@ -151,14 +150,12 @@ impl Ic74139 {
         let vcc = pin!(VCC, "VCC", Unconnected);
         let gnd = pin!(GND, "GND", Unconnected);
 
+        let chip: DeviceRef = new_ref!(Ic74139 {
+            pins: pins![a1, a2, b1, b2, g1, g2, y10, y11, y12, y13, y20, y21, y22, y23, vcc, gnd]
+        });
+
         set!(y11, y12, y13, y21, y22, y23);
         clear!(y10, y20);
-
-        let chip: DeviceRef = new_ref!(Ic74139 {
-            pins: pins![
-                dummy, g1, a1, b1, y10, y11, y12, y13, gnd, y23, y22, y21, y20, b2, a2, g2, vcc
-            ],
-        });
 
         attach!(a1, clone_ref!(chip));
         attach!(b1, clone_ref!(chip));
@@ -212,7 +209,7 @@ impl Device for Ic74139 {
 
     fn update(&mut self, event: &LevelChangeEvent) {
         // Some macros to ease repitition (each of these is invoked three times in the
-        // code below)
+        // code below) and to provide some better clarity.
         //
         // They have to be defined inside the function as they use `self`, and macros can
         // only reference values explicitly passed in or which are defined in the place

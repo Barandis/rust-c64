@@ -11,7 +11,14 @@ macro_rules! pin {
 
 macro_rules! pins {
     ($($pin:expr),* $(,)?) => {
-        vec![$(std::rc::Rc::clone(&$pin)),*]
+        {
+            let mut v = vec![
+                pin!(0, "__DUMMY__", $crate::components::pin::Mode::Unconnected),
+                $(std::rc::Rc::clone(&$pin)),*
+            ];
+            v.sort_by(|a, b| a.borrow().number().cmp(&b.borrow().number()));
+            v
+        }
     }
 }
 
@@ -103,8 +110,8 @@ macro_rules! clear {
 }
 
 macro_rules! float {
-    ($pt:expr $(,)?) => {
-        $pt.borrow_mut().float()
+    ($($pt:expr),* $(,)?) => {
+        $($pt.borrow_mut().float();)*
     };
 }
 

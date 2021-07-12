@@ -88,13 +88,9 @@ pub struct Ic7408 {
 }
 
 impl Ic7408 {
-    /// Creates a new Ic7408 quad 2-input AND gate emulation and returns a shared,
-    /// internally mutable reference to it. The new chip will start with all outputs set to
-    /// low because none of the gates have both inputs initially set to high.
+    /// Creates a new 7408 quad 2-input AND gate emulation and returns a shared, internally
+    /// mutable reference to it.
     pub fn new() -> DeviceRef {
-        // Dummy pin, used as a spacer to put the index of the first real pin at 1.
-        let dummy = pin!(0, "__DUMMY__", Unconnected);
-
         // Gate 1 inputs and output
         let a1 = pin!(A1, "A1", Input);
         let b1 = pin!(B1, "B1", Input);
@@ -119,12 +115,12 @@ impl Ic7408 {
         let vcc = pin!(VCC, "VCC", Unconnected);
         let gnd = pin!(GND, "GND", Unconnected);
 
+        let chip: DeviceRef = new_ref!(Ic7408 {
+            pins: pins![a1, a2, a3, a4, b1, b2, b3, b4, y1, y2, y3, y4, vcc, gnd],
+        });
+
         // All output pins begin low because none have any high inputs.
         clear!(y1, y2, y3, y4);
-
-        let chip: DeviceRef = new_ref!(Ic7408 {
-            pins: pins![dummy, a1, b1, y1, a2, b2, y2, gnd, y3, a3, b3, y4, a4, b4, vcc],
-        });
 
         attach!(a1, clone_ref!(chip));
         attach!(b1, clone_ref!(chip));

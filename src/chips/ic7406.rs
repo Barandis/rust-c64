@@ -88,13 +88,9 @@ pub struct Ic7406 {
 }
 
 impl Ic7406 {
-    /// Creates a new Ic7406 hex inverter emulation and returns a shared, internally mutable
-    /// reference to it. The new chip will start with all outputs set to high because all
-    /// inputs are initially level-less.
+    /// Creates a new 7406 hex inverter emulation and returns a shared, internally mutable
+    /// reference to it.
     pub fn new() -> DeviceRef {
-        // Dummy pin, used as a spacer to put the index of the first real pin at 1.
-        let dummy = pin!(0, "__DUMMY__", Unconnected);
-
         // Input pins. In the TI data sheet, these are named "1A", "2A", etc., and the C64
         // schematic does not suggest names for them. Since these names are not legal
         // variable names, we've switched the letter and number.
@@ -117,12 +113,12 @@ impl Ic7406 {
         let gnd = pin!(GND, "GND", Unconnected);
         let vcc = pin!(VCC, "VCC", Unconnected);
 
+        let chip: DeviceRef = new_ref!(Ic7406 {
+            pins: pins![a1, a2, a3, a4, a5, a6, y1, y2, y3, y4, y5, y6, vcc, gnd],
+        });
+
         // All outputs begin high since all of the inputs begin non-high.
         set!(y1, y2, y3, y4, y5, y6);
-
-        let chip: DeviceRef = new_ref!(Ic7406 {
-            pins: pins![dummy, a1, y1, a2, y2, a3, y3, gnd, y4, a4, y5, a5, y6, a6, vcc],
-        });
 
         attach!(a1, clone_ref!(chip));
         attach!(a2, clone_ref!(chip));
@@ -165,14 +161,6 @@ impl Ic7406 {
         let gnd = Pin::new(GND, "GND", Unconnected);
         let vcc = Pin::new(VCC, "VCC", Unconnected);
 
-        // All outputs begin high since all of the inputs begin non-high.
-        y1.borrow_mut().set();
-        y2.borrow_mut().set();
-        y3.borrow_mut().set();
-        y4.borrow_mut().set();
-        y5.borrow_mut().set();
-        y6.borrow_mut().set();
-
         let chip: Rc<RefCell<dyn Device>> = Rc::new(RefCell::new(Ic7406 {
             pins: vec![
                 Rc::clone(&dummy),
@@ -192,6 +180,14 @@ impl Ic7406 {
                 Rc::clone(&vcc),
             ],
         }));
+
+        // All outputs begin high since all of the inputs begin non-high.
+        y1.borrow_mut().set();
+        y2.borrow_mut().set();
+        y3.borrow_mut().set();
+        y4.borrow_mut().set();
+        y5.borrow_mut().set();
+        y6.borrow_mut().set();
 
         a1.borrow_mut().attach(Rc::clone(&chip));
         a2.borrow_mut().attach(Rc::clone(&chip));
