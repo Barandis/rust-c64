@@ -121,6 +121,8 @@ use self::constants::*;
 /// the same). Its two demultiplexers are chained together to provide additional address
 /// decoding when the PLA's IO output is selected.
 pub struct Ic74139 {
+    /// The pins of the 74139, along with a dummy pin (at index 0) to ensure that the vector
+    /// index of the others matches the 1-based pin assignments.
     pins: Vec<PinRef>,
 }
 

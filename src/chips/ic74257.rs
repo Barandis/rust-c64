@@ -80,7 +80,7 @@ use self::constants::*;
 /// The chip comes in a 16-pin dual in-line package with the following pin assignments.
 /// ```text
 ///         +---+--+---+
-///     SEL |1  +--+ 16| Vcc
+///     SEL |1  +--+ 16| VCC
 ///      A1 |2       15| OE
 ///      B1 |3       14| A4
 ///      Y1 |4       13| B4
@@ -90,12 +90,14 @@ use self::constants::*;
 ///     GND |8        9| Y3
 ///         +----------+
 /// ```
-/// GND and Vcc are ground and power supply pins respectively, and they are not emulated.
+/// GND and VCC are ground and power supply pins respectively, and they are not emulated.
 ///
 /// In the Commodore 64, both U13 and U25 are 74LS257 chips (a lower-power, faster variant
 /// whose emulation is the same). They are used together to multiplex the CPU's 16 address
 /// lines into the 8 lines expected by the 4164 DRAM chips.
 pub struct Ic74257 {
+    /// The pins of the 74257, along with a dummy pin (at index 0) to ensure that the vector
+    /// index of the others matches the 1-based pin assignments.
     pins: Vec<PinRef>,
 }
 

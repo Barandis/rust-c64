@@ -80,7 +80,7 @@ use self::constants::*;
 /// The chip comes in a 16-pin dual in-line package with the following pin assignments.
 /// ```text
 ///         +---+--+---+
-///     SEL |1  +--+ 16| Vcc
+///     SEL |1  +--+ 16| VCC
 ///      A1 |2       15| OE
 ///      B1 |3       14| A4
 ///      Y1 |4       13| B4
@@ -90,13 +90,15 @@ use self::constants::*;
 ///     GND |8        9| Y3
 ///         +----------+
 /// ```
-/// GND and Vcc are ground and power supply pins respectively, and they are not emulated.
+/// GND and VCC are ground and power supply pins respectively, and they are not emulated.
 ///
 /// In the Commodore 64, U14 is a 74LS258 (a lower-power, faster variant whose emulation is
 /// the same). It's used to multiplex the upper two lines of the multiplexed address bus
 /// from the A6 and A7 lines from the 6567 VIC and the VA14 and VA15 lines from one of the
 /// 6526 CIAs.
 pub struct Ic74258 {
+    /// The pins of the 74258, along with a dummy pin (at index 0) to ensure that the vector
+    /// index of the others matches the 1-based pin assignments.
     pins: Vec<PinRef>,
 }
 
