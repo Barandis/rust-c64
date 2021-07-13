@@ -480,62 +480,62 @@ impl Device for Ic82S100 {
                 // skoe.de/docs/c64-dissected/pla/c64_pla_dissected_a4ds.pdf. If this sort
                 // of thing interests you, there's no better place for information about the
                 // C64 PLA.
-                let i0 = value_in!(p, CAS, level);
-                let i1 = value_in!(p, LORAM, level);
-                let i2 = value_in!(p, HIRAM, level);
-                let i3 = value_in!(p, CHAREN, level);
-                let i4 = value_in!(p, VA14, level);
-                let i5 = value_in!(p, A15, level);
-                let i6 = value_in!(p, A14, level);
-                let i7 = value_in!(p, A13, level);
-                let i8 = value_in!(p, A12, level);
-                let i9 = value_in!(p, BA, level);
-                let i10 = value_in!(p, AEC, level);
-                let i11 = value_in!(p, R_W, level);
-                let i12 = value_in!(p, EXROM, level);
-                let i13 = value_in!(p, GAME, level);
-                let i14 = value_in!(p, VA13, level);
-                let i15 = value_in!(p, VA12, level);
+                let cas = value_in!(p, CAS, level);
+                let loram = value_in!(p, LORAM, level);
+                let hiram = value_in!(p, HIRAM, level);
+                let charen = value_in!(p, CHAREN, level);
+                let va14 = value_in!(p, VA14, level);
+                let a15 = value_in!(p, A15, level);
+                let a14 = value_in!(p, A14, level);
+                let a13 = value_in!(p, A13, level);
+                let a12 = value_in!(p, A12, level);
+                let ba = value_in!(p, BA, level);
+                let aec = value_in!(p, AEC, level);
+                let r_w = value_in!(p, R_W, level);
+                let exrom = value_in!(p, EXROM, level);
+                let game = value_in!(p, GAME, level);
+                let va13 = value_in!(p, VA13, level);
+                let va12 = value_in!(p, VA12, level);
 
                 // LORAM deselected, HIRAM deselected
                 // $A000 - $BFFF
                 // CPU active, Read, No cartridge or 8k cartridge
-                let p0 = i1 & i2 & i5 & !i6 & i7 & !i10 & i11 & i13;
+                let p0 = loram & hiram & a15 & !a14 & a13 & !aec & r_w & game;
 
                 // HIRAM deselected
                 // $E000 - $FFFF
                 // CPU active, Read, No cartridge or 8k cartridge
-                let p1 = i2 & i5 & i6 & i7 & !i10 & i11 & i13;
+                let p1 = hiram & a15 & a14 & a13 & !aec & r_w & game;
 
                 // HIRAM deselected
                 // $E000 - $FFFF
                 // CPU active, Read, 16k cartridge
-                let p2 = i2 & i5 & i6 & i7 & !i10 & i11 & !i12 & !i13;
+                let p2 = hiram & a15 & a14 & a13 & !aec & r_w & !exrom & !game;
 
                 // HIRAM deselected, CHAREN selected
                 // $D000 - $DFFF
                 // CPU active, Read, No cartridge or 8k cartridge
-                let p3 = i2 & !i3 & i5 & i6 & !i7 & i8 & !i10 & i11 & i13;
+                let p3 = hiram & !charen & a15 & a14 & !a13 & a12 & !aec & r_w & game;
 
                 // LORAM deselected, CHAREN selected
                 // $D000 - $DFFF
                 // CPU active, Read, No cartridge or 8k cartridge
-                let p4 = i1 & !i3 & i5 & i6 & !i7 & i8 & !i10 & i11 & i13;
+                let p4 = loram & !charen & a15 & a14 & !a13 & a12 & !aec & r_w & game;
 
                 // HIRAM deselected, CHAREN selected
                 // $D000 - $DFFF
                 // CPU active, Read, 16k cartridge
-                let p5 = i2 & !i3 & i5 & i6 & !i7 & i8 & !i10 & i11 & !i12 & !i13;
+                let p5 = hiram & !charen & a15 & a14 & !a13 & a12 & !aec & r_w & !exrom & !game;
 
                 //
                 // $1000 - $1FFF or $9000 - $9FFF
                 // VIC active, No cartridge or 8k cartridge
-                let p6 = i4 & !i14 & i15 & i10 & i13;
+                let p6 = va14 & !va13 & va12 & aec & game;
 
                 //
                 // $1000 - $1FFF or $9000 - $9FFF
                 // VIC active, 16k cartridge
-                let p7 = i4 & !i14 & i15 & i10 & !i12 & !i13;
+                let p7 = va14 & !va13 & va12 & aec & !exrom & !game;
 
                 // Unused. May be a relic from earlier design in C64 prototypes that never
                 // got removed.
@@ -544,102 +544,104 @@ impl Device for Ic82S100 {
                 // HIRAM deselected, CHAREN deselected
                 // $D000 - $DFFF
                 // CPU active, Bus available, Read, No cartridge or 8k cartridge
-                let p9 = i2 & i3 & i5 & i6 & !i7 & i8 & !i10 & i9 & i11 & i13;
+                let p9 = hiram & charen & a15 & a14 & !a13 & a12 & !aec & ba & r_w & game;
 
                 // HIRAM deselected, CHAREN deselected
                 // $D000 - $DFFF
                 // CPU active, Write, No cartridge or 8k cartridge
-                let p10 = i2 & i3 & i5 & i6 & !i7 & i8 & !i10 & !i11 & i13;
+                let p10 = hiram & charen & a15 & a14 & !a13 & a12 & !aec & !r_w & game;
 
                 // LORAM deselected, CHAREN deselected
                 // $D000 - $DFFF
                 // CPU active, Bus available, Read, No cartridge or 8k cartridge
-                let p11 = i1 & i3 & i5 & i6 & !i7 & i8 & !i10 & i9 & i11 & i13;
+                let p11 = loram & charen & a15 & a14 & !a13 & a12 & !aec & ba & r_w & game;
 
                 // LORAM deselected, CHAREN deselected
                 // $D000 - $DFFF
                 // CPU active, Write, No cartridge or 8k cartridge
-                let p12 = i1 & i3 & i5 & i6 & !i7 & i8 & !i10 & !i11 & i13;
+                let p12 = loram & charen & a15 & a14 & !a13 & a12 & !aec & !r_w & game;
 
                 // HIRAM deselected, CHAREN deselected
                 // $D000 - $DFFF
                 // CPU active, Bus available, Read, 16k cartridge
-                let p13 = i2 & i3 & i5 & i6 & !i7 & i8 & !i10 & i9 & i11 & !i12 & !i13;
+                let p13 =
+                    hiram & charen & a15 & a14 & !a13 & a12 & !aec & ba & r_w & !exrom & !game;
 
                 // HIRAM deselected, CHAREN deselected
                 // $D000 - $DFFF
                 // CPU active, Write, 16k cartridge
-                let p14 = i2 & i3 & i5 & i6 & !i7 & i8 & !i10 & !i11 & !i12 & !i13;
+                let p14 = hiram & charen & a15 & a14 & !a13 & a12 & !aec & !r_w & !exrom & !game;
 
                 // LORAM deselected, CHAREN deselected
                 // $D000 - $DFFF
                 // CPU active, Bus available, Read, 16k cartridge
-                let p15 = i1 & i3 & i5 & i6 & !i7 & i8 & !i10 & i9 & i11 & !i12 & !i13;
+                let p15 =
+                    loram & charen & a15 & a14 & !a13 & a12 & !aec & ba & r_w & !exrom & !game;
 
                 // LORAM deselected, CHAREN deselected
                 // $D000 - $DFFF
                 // CPU active, Write, 16k cartridge
-                let p16 = i1 & i3 & i5 & i6 & !i7 & i8 & !i10 & !i11 & !i12 & !i13;
+                let p16 = loram & charen & a15 & a14 & !a13 & a12 & !aec & !r_w & !exrom & !game;
 
                 //
                 // $D000 - $DFFF
                 // CPU active, Bus available, Read, Ultimax cartridge
-                let p17 = i5 & i6 & !i7 & i8 & !i10 & i9 & i11 & i12 & !i13;
+                let p17 = a15 & a14 & !a13 & a12 & !aec & ba & r_w & exrom & !game;
 
                 //
                 // $D000 - $DFFF
                 // CPU active, Write, Ultimax cartridge
-                let p18 = i5 & i6 & !i7 & i8 & !i10 & !i11 & i12 & !i13;
+                let p18 = a15 & a14 & !a13 & a12 & !aec & !r_w & exrom & !game;
 
                 // LORAM deselected, HIRAM deselected
                 // $8000 - $9FFF
                 // CPU active, Read, 8k or 16k cartridge
-                let p19 = i1 & i2 & i5 & !i6 & !i7 & !i10 & i11 & !i12;
+                let p19 = loram & hiram & a15 & !a14 & !a13 & !aec & r_w & !exrom;
 
                 //
                 // $8000 - $9FFF
                 // CPU active, Ultimax cartridge
-                let p20 = i5 & !i6 & !i7 & !i10 & i12 & !i13;
+                let p20 = a15 & !a14 & !a13 & !aec & exrom & !game;
 
                 // HIRAM deselected
                 // $A000 - $BFFF
                 // CPU active, Read, 16k cartridge
-                let p21 = i2 & i5 & !i6 & i7 & !i10 & i11 & !i12 & !i13;
+                let p21 = hiram & a15 & !a14 & a13 & !aec & r_w & !exrom & !game;
 
                 //
                 // $E000 - $EFFF
                 // CPU active, Ultimax cartridge
-                let p22 = i5 & i6 & i7 & !i10 & i12 & !i13;
+                let p22 = a15 & a14 & a13 & !aec & exrom & !game;
 
                 //
                 // $3000 - $3FFF, $7000 - $7FFF, $B000 - $BFFF, or $E000 - $EFFF
                 // VIC active, Ultimax cartridge
-                let p23 = i14 & i15 & i10 & i12 & !i13;
+                let p23 = va13 & va12 & aec & exrom & !game;
 
                 //
                 // $1000 - $1FFF or $3000 - $3FFF
                 // Ultimax cartridge
-                let p24 = !i5 & !i6 & i8 & i12 & !i13;
+                let p24 = !a15 & !a14 & a12 & exrom & !game;
 
                 //
                 // $2000 - $3FFF
                 // Ultimax cartridge
-                let p25 = !i5 & !i6 & i7 & i12 & !i13;
+                let p25 = !a15 & !a14 & a13 & exrom & !game;
 
                 //
                 // $4000 - $7FFF
                 // Ultimax cartridge
-                let p26 = !i5 & i6 & i12 & !i13;
+                let p26 = !a15 & a14 & exrom & !game;
 
                 //
                 // $A000 - $BFFF
                 // Ultimax cartridge
-                let p27 = i5 & !i6 & i7 & i12 & !i13;
+                let p27 = a15 & !a14 & a13 & exrom & !game;
 
                 //
                 // $C000 - $CFFF
                 // Ultimax cartridge
-                let p28 = i5 & i6 & !i7 & !i8 & i12 & !i13;
+                let p28 = a15 & a14 & !a13 & !a12 & exrom & !game;
 
                 // Unused.
                 // let p29 = !i1;
@@ -647,12 +649,12 @@ impl Device for Ic82S100 {
                 // CAS deselected
                 //
                 //
-                let p30 = i0;
+                let p30 = cas;
 
                 // CAS selected
                 // $D000 - $DFFF
                 // CPU access, Write
-                let p31 = !i0 & i5 & i6 & !i7 & i8 & !i10 & !i11;
+                let p31 = !cas & a15 & a14 & !a13 & a12 & !aec & !r_w;
 
                 // This is the sum-term (S-term) portion of the logic, where the P-terms
                 // calculated above are logically ORed to poroduce a single output. This is
