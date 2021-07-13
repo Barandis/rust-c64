@@ -13,7 +13,11 @@ macro_rules! pins {
     ($($pin:expr),* $(,)?) => {
         {
             let mut v = vec![
-                pin!(0, "__DUMMY__", $crate::components::pin::Mode::Unconnected),
+                pin!(
+                    0,
+                    $crate::components::device::DUMMY,
+                    $crate::components::pin::Mode::Unconnected
+                ),
                 $(std::rc::Rc::clone(&$pin)),*
             ];
             v.sort_by(|a, b| a.borrow().number().cmp(&b.borrow().number()));

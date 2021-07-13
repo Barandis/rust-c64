@@ -44,7 +44,7 @@ pub mod constants {
 use std::{cell::RefCell, rc::Rc};
 
 use crate::components::{
-    device::{Device, DeviceRef, LevelChangeEvent},
+    device::{Device, DeviceRef, LevelChangeEvent, DUMMY},
     pin::{
         Mode::{Input, Output, Unconnected},
         Pin, PinRef,
@@ -52,6 +52,8 @@ use crate::components::{
 };
 
 use self::constants::*;
+
+const INPUTS: [usize; 6] = [A1, A2, A3, A4, A5, A6];
 
 /// An emulation of the 7406 hex inverter.
 ///
@@ -137,7 +139,7 @@ impl Ic7406 {
     /// purposes.
     pub fn new_no_macro() -> Rc<RefCell<dyn Device>> {
         // Dummy pin, used as a spacer to put the index of the first real pin at 1.
-        let dummy = Pin::new(0, "__DUMMY__", Unconnected);
+        let dummy = Pin::new(0, DUMMY, Unconnected);
 
         // Input pins. In the TI data sheet, these are named "1A", "2A", etc., and the C64
         // schematic does not suggest names for them. Since these names are not legal
@@ -201,7 +203,7 @@ impl Ic7406 {
 }
 
 /// Maps each input pin assignment ot its corresponding output pin assignment.
-fn output(input: usize) -> usize {
+fn output_for(input: usize) -> usize {
     match input {
         A1 => Y1,
         A2 => Y2,
@@ -224,8 +226,8 @@ impl Device for Ic7406 {
 
     fn update(&mut self, event: &LevelChangeEvent) {
         match event {
-            LevelChangeEvent(p, _, level) if vec![A1, A2, A3, A4, A5, A6].contains(p) => {
-                let o = clone_ref!(self.pins[output(*p)]);
+            LevelChangeEvent(p, _, level) if INPUTS.contains(p) => {
+                let o = clone_ref!(self.pins[output_for(*p)]);
                 match level {
                     Some(value) if *value >= 0.5 => clear!(o),
                     _ => set!(o),

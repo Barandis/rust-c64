@@ -48,6 +48,8 @@ use crate::components::{
 
 use self::constants::*;
 
+const INPUTS: [usize; 8] = [A1, A2, A3, A4, B1, B2, B3, B4];
+
 /// An emulation of the 7408 quad two-input AND gate.
 ///
 /// The 7408 is one of the 7400-series TTL logic circuits, consisting of four dual-input AND
@@ -137,7 +139,7 @@ impl Ic7408 {
 
 /// Maps each input pin assignment to a tuple of its gate's other input pin assignment and
 /// its gate's output pin assignment.
-fn input_output(input: usize) -> (usize, usize) {
+fn input_output_for(input: usize) -> (usize, usize) {
     match input {
         A1 => (B1, Y1),
         B1 => (A1, Y1),
@@ -162,22 +164,20 @@ impl Device for Ic7408 {
 
     fn update(&mut self, event: &LevelChangeEvent) {
         match event {
-            LevelChangeEvent(p, _, level) if vec![A1, A2, A3, A4, B1, B2, B3, B4].contains(p) => {
-                match level {
-                    Some(value) if *value >= 0.5 => {
-                        let (i, o) = input_output(*p);
-                        if high!(self.pins[i]) {
-                            set!(self.pins[o]);
-                        } else {
-                            clear!(self.pins[o]);
-                        }
-                    }
-                    _ => {
-                        let (_, o) = input_output(*p);
+            LevelChangeEvent(p, _, level) if INPUTS.contains(p) => match level {
+                Some(value) if *value >= 0.5 => {
+                    let (i, o) = input_output_for(*p);
+                    if high!(self.pins[i]) {
+                        set!(self.pins[o]);
+                    } else {
                         clear!(self.pins[o]);
                     }
                 }
-            }
+                _ => {
+                    let (_, o) = input_output_for(*p);
+                    clear!(self.pins[o]);
+                }
+            },
             _ => (),
         }
     }

@@ -54,6 +54,9 @@ use crate::components::{
 
 use self::constants::*;
 
+const A_INPUTS: [usize; 4] = [A1, A2, A3, A4];
+const B_INPUTS: [usize; 4] = [B1, B2, B3, B4];
+
 /// An emulation of the 74258 quad 2-to-1 multiplexer.
 ///
 /// The 74258 is one of the 7400-series TTL logic chips, consisting of four 2-to-1
@@ -161,7 +164,7 @@ impl Ic74258 {
 }
 
 /// Maps an input pin assignment to its corresponding output pin assignment.
-fn output(input: usize) -> usize {
+fn output_for(input: usize) -> usize {
     match input {
         A1 | B1 => Y1,
         A2 | B2 => Y2,
@@ -231,8 +234,8 @@ impl Device for Ic74258 {
         }
 
         match event {
-            LevelChangeEvent(p, _, level) if [A1, A2, A3, A4].contains(p) => {
-                let y = output(*p);
+            LevelChangeEvent(p, _, level) if A_INPUTS.contains(p) => {
+                let y = output_for(*p);
                 if high!(self.pins[OE]) {
                     float!(self.pins[y]);
                 } else if low!(self.pins[SEL]) {
@@ -242,8 +245,8 @@ impl Device for Ic74258 {
                     }
                 }
             }
-            LevelChangeEvent(p, _, level) if [B1, B2, B3, B4].contains(p) => {
-                let y = output(*p);
+            LevelChangeEvent(p, _, level) if B_INPUTS.contains(p) => {
+                let y = output_for(*p);
                 if high!(self.pins[OE]) {
                     float!(self.pins[y]);
                 } else if high!(self.pins[SEL]) {

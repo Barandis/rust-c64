@@ -48,6 +48,9 @@ use crate::components::{
 
 use self::constants::*;
 
+const IOS: [usize; 8] = [A1, A2, A3, A4, B1, B2, B3, B4];
+const CONTROLS: [usize; 4] = [X1, X2, X3, X4];
+
 /// An emulation of the 4066 quad bilateral switch.
 ///
 /// The 4066 is one of the 4000-series CMOS logic chips, consisting of four symmetrical
@@ -160,7 +163,7 @@ impl Ic4066 {
 }
 
 /// Maps each control pin assignment to a tuple of its switch's two I/O pin assignments.
-fn io(control: usize) -> (usize, usize) {
+fn ios_for(control: usize) -> (usize, usize) {
     match control {
         X1 => (A1, B1),
         X2 => (A2, B2),
@@ -172,7 +175,7 @@ fn io(control: usize) -> (usize, usize) {
 
 /// Maps each I/O pin assignment to a tuple of its switch's other I/O pin assignment and
 /// its switch's control pin assignment.
-fn io_control(io: usize) -> (usize, usize) {
+fn io_control_for(io: usize) -> (usize, usize) {
     match io {
         A1 => (B1, X1),
         B1 => (A1, X1),
@@ -209,8 +212,8 @@ impl Device for Ic4066 {
     fn update(&mut self, event: &LevelChangeEvent) {
         match event {
             // Control pin change
-            LevelChangeEvent(p, _, level) if vec![X1, X2, X3, X4].contains(p) => {
-                let (a, b) = io(*p);
+            LevelChangeEvent(p, _, level) if CONTROLS.contains(p) => {
+                let (a, b) = ios_for(*p);
                 let apin = clone_ref!(self.pins[a]);
                 let bpin = clone_ref!(self.pins[b]);
 
@@ -246,8 +249,8 @@ impl Device for Ic4066 {
             }
             // I/O pin change: remember the index of the pin being changed, and if the
             // control pin is low, set the level of the associated I/O pin to the new level
-            LevelChangeEvent(p, _, level) if vec![A1, A2, A3, A4, B1, B2, B3, B4].contains(p) => {
-                let (out, x) = io_control(*p);
+            LevelChangeEvent(p, _, level) if IOS.contains(p) => {
+                let (out, x) = io_control_for(*p);
                 let index = switch(x);
 
                 self.last[index] = Some(*p);

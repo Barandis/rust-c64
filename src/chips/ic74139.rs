@@ -190,7 +190,7 @@ fn outputs(index: usize) -> (usize, usize, usize, usize) {
 
 /// Maps an input pin assignment to its associated other input pin assignment and control
 /// pin assignment.
-fn input_control(index: usize) -> (usize, usize) {
+fn input_control_for(index: usize) -> (usize, usize) {
     match index {
         A1 => (B1, G1),
         B1 => (A1, G1),
@@ -246,7 +246,7 @@ impl Device for Ic74139 {
             // something different based on which one it is (HL for AB produces a different
             // output than LH, for example)
             LevelChangeEvent(p, _, level) if *p == A1 || *p == A2 => {
-                let (b, g) = input_control(*p);
+                let (b, g) = input_control_for(*p);
                 let (y0, y1, y2, y3) = outputs(*p);
 
                 if high!(self.pins[g]) {
@@ -271,7 +271,7 @@ impl Device for Ic74139 {
                 }
             }
             LevelChangeEvent(p, _, level) if *p == B1 || *p == B2 => {
-                let (a, g) = input_control(*p);
+                let (a, g) = input_control_for(*p);
                 let (y0, y1, y2, y3) = outputs(*p);
 
                 if high!(self.pins[g]) {
