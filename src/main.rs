@@ -8,6 +8,7 @@ mod macros;
 
 pub mod chips;
 pub mod components;
+pub mod utils;
 
 #[cfg(test)]
 pub mod test_utils;
