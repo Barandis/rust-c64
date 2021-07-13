@@ -26,6 +26,7 @@ macro_rules! pins {
     }
 }
 
+#[cfg(test)]
 macro_rules! trace {
     ($($pin:expr),* $(,)?) => {
         {
@@ -50,12 +51,6 @@ macro_rules! new_ref {
 macro_rules! clone_ref {
     ($obj:expr $(,)?) => {
         std::rc::Rc::clone(&$obj)
-    };
-}
-
-macro_rules! get_pin {
-    ($device:expr, $index:expr $(,)?) => {
-        $device.borrow().pins()[$index]
     };
 }
 
@@ -95,6 +90,7 @@ macro_rules! low {
     };
 }
 
+#[cfg(test)]
 macro_rules! floating {
     ($pt:expr $(,)?) => {
         $pt.borrow().floating()
@@ -119,6 +115,7 @@ macro_rules! float {
     };
 }
 
+#[cfg(test)]
 macro_rules! toggle {
     ($pt:expr $(,)?) => {
         $pt.borrow_mut().toggle()
@@ -137,39 +134,24 @@ macro_rules! set_mode {
     };
 }
 
-macro_rules! input {
-    ($pin:expr $(,)?) => {
-        $pin.borrow().input()
-    };
-}
-
-macro_rules! output {
-    ($pin:expr $(,)?) => {
-        $pin.borrow().output()
-    };
-}
-
+#[cfg(test)]
 macro_rules! pull_up {
     ($pt:expr $(,)?) => {
         $pt.borrow_mut().pull_up()
     };
 }
 
+#[cfg(test)]
 macro_rules! pull_down {
     ($pt:expr $(,)?) => {
         $pt.borrow_mut().pull_down()
     };
 }
 
+#[cfg(test)]
 macro_rules! pull_off {
     ($pt:expr $(,)?) => {
         $pt.borrow_mut().pull_off()
-    };
-}
-
-macro_rules! connected {
-    ($pin:expr $(,)?) => {
-        $pin.borrow().connected()
     };
 }
 
@@ -179,23 +161,9 @@ macro_rules! attach {
     };
 }
 
+#[cfg(test)]
 macro_rules! detach {
     ($pin:expr $(,)?) => {
         $pin.borrow_mut().detach()
-    };
-}
-
-macro_rules! add_pin {
-    ($tr:expr, $pin:expr $(,)?) => {
-        $tr.borrow_mut().add_pin($pin)
-    };
-}
-
-macro_rules! add_pins {
-    ($tr:expr, $($pin:expr),* $(,)?) => {
-        {
-            let v = vec![$($pin),*];
-            $tr.borrow_mut().add_pins(v);
-        }
     };
 }
