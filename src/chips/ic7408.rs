@@ -185,14 +185,19 @@ impl Device for Ic7408 {
 
 #[cfg(test)]
 mod test {
-    use crate::test_utils::make_traces;
+    use crate::{components::trace::TraceRef, test_utils::make_traces};
 
     use super::*;
 
+    fn before_each() -> (DeviceRef, Vec<TraceRef>) {
+        let chip = Ic7408::new();
+        let tr = make_traces(clone_ref!(chip));
+        (chip, tr)
+    }
+
     #[test]
     fn gate_1() {
-        let chip = Ic7408::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[A1]);
         clear!(tr[B1]);
@@ -222,8 +227,7 @@ mod test {
 
     #[test]
     fn gate_2() {
-        let chip = Ic7408::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[A2]);
         clear!(tr[B2]);
@@ -253,8 +257,7 @@ mod test {
 
     #[test]
     fn gate_3() {
-        let chip = Ic7408::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[A3]);
         clear!(tr[B3]);
@@ -284,8 +287,7 @@ mod test {
 
     #[test]
     fn gate_4() {
-        let chip = Ic7408::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[A4]);
         clear!(tr[B4]);

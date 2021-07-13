@@ -240,15 +240,19 @@ impl Device for Ic7406 {
 
 #[cfg(test)]
 mod test {
-    use crate::test_utils::make_traces;
+    use crate::{components::trace::TraceRef, test_utils::make_traces};
 
     use super::*;
 
+    fn before_each() -> (DeviceRef, Vec<TraceRef>) {
+        let chip = Ic7406::new();
+        let tr = make_traces(clone_ref!(chip));
+        (chip, tr)
+    }
+
     #[test]
     fn input_high() {
-        let chip = Ic7406::new();
-
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         set!(tr[A1]);
         assert!(low!(tr[Y1]), "Y1 should be low when A1 is high");
@@ -271,9 +275,7 @@ mod test {
 
     #[test]
     fn input_low() {
-        let chip = Ic7406::new();
-
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[A1]);
         assert!(high!(tr[Y1]), "Y1 should be high when A1 is low");
@@ -300,9 +302,7 @@ mod test {
 
     #[test]
     fn input_high_no_macro() {
-        let chip = Ic7406::new_no_macro();
-
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         tr[A1].borrow_mut().set();
         assert!(tr[Y1].borrow().low(), "Y1 should be low when A1 is high");
@@ -325,9 +325,7 @@ mod test {
 
     #[test]
     fn input_low_no_macro() {
-        let chip = Ic7406::new();
-
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         tr[A1].borrow_mut().clear();
         assert!(tr[Y1].borrow().high(), "Y1 should be high when A1 is low");

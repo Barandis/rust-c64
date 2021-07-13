@@ -5,7 +5,7 @@
 
 use crate::components::{device::DeviceRef, trace::TraceRef};
 
-pub fn make_traces(device: &DeviceRef) -> Vec<TraceRef> {
+pub fn make_traces(device: DeviceRef) -> Vec<TraceRef> {
     let mut v = vec![];
     for pin in device.borrow().pins().iter() {
         v.push(trace!(clone_ref!(pin)));

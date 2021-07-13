@@ -265,14 +265,19 @@ impl Device for Ic4066 {
 
 #[cfg(test)]
 mod test {
-    use crate::test_utils::make_traces;
+    use crate::{components::trace::TraceRef, test_utils::make_traces};
 
     use super::*;
 
+    fn before_each() -> (DeviceRef, Vec<TraceRef>) {
+        let chip = Ic4066::new();
+        let tr = make_traces(clone_ref!(chip));
+        (chip, tr)
+    }
+
     #[test]
     fn pass_a_to_b() {
-        let chip = Ic4066::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[X1]);
         set_level!(tr[A1], Some(0.5));
@@ -301,8 +306,7 @@ mod test {
 
     #[test]
     fn pass_b_to_a() {
-        let chip = Ic4066::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[X1]);
         set_level!(tr[B1], Some(0.5));
@@ -331,8 +335,7 @@ mod test {
 
     #[test]
     fn disconnect_on_high_x() {
-        let chip = Ic4066::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         set!(tr[X1]);
         assert!(floating!(tr[A1]), "A1 should be disconnected");
@@ -353,8 +356,7 @@ mod test {
 
     #[test]
     fn no_pass_a_to_b_on_high_x() {
-        let chip = Ic4066::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         set!(tr[X1]);
         set_level!(tr[A1], Some(0.5));
@@ -375,8 +377,7 @@ mod test {
 
     #[test]
     fn no_pass_b_to_a_on_high_x() {
-        let chip = Ic4066::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         set!(tr[X1]);
         set_level!(tr[B1], Some(0.5));
@@ -397,8 +398,7 @@ mod test {
 
     #[test]
     fn last_set_a() {
-        let chip = Ic4066::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         set!(tr[X1]);
         set_level!(tr[B1], Some(1.5));
@@ -443,8 +443,7 @@ mod test {
 
     #[test]
     fn last_set_b() {
-        let chip = Ic4066::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         set!(tr[X1]);
         set_level!(tr[A1], Some(1.5));
@@ -489,8 +488,7 @@ mod test {
 
     #[test]
     fn unset_before_high_x() {
-        let chip = Ic4066::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         set!(tr[X1]);
         clear!(tr[X1]);

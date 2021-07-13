@@ -273,7 +273,7 @@ mod test {
 
     fn before_each() -> (DeviceRef, Vec<TraceRef>) {
         let chip = Ic74373::new();
-        let tr = make_traces(&chip);
+        let tr = make_traces(clone_ref!(chip));
         set!(tr[LE]);
         clear!(tr[OE]);
         (chip, tr)

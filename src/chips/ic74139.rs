@@ -326,14 +326,19 @@ impl Device for Ic74139 {
 
 #[cfg(test)]
 mod test {
-    use crate::test_utils::make_traces;
+    use crate::{components::trace::TraceRef, test_utils::make_traces};
 
     use super::*;
 
+    fn before_each() -> (DeviceRef, Vec<TraceRef>) {
+        let chip = Ic74139::new();
+        let tr = make_traces(clone_ref!(chip));
+        (chip, tr)
+    }
+
     #[test]
     fn demux_1_g_high() {
-        let chip = Ic74139::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         set!(tr[G1]);
         clear!(tr[A1]);
@@ -364,8 +369,7 @@ mod test {
 
     #[test]
     fn demux_1_low_low() {
-        let chip = Ic74139::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[G1]);
         clear!(tr[A1]);
@@ -390,8 +394,7 @@ mod test {
 
     #[test]
     fn demux_1_high_low() {
-        let chip = Ic74139::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[G1]);
         set!(tr[A1]);
@@ -416,8 +419,7 @@ mod test {
 
     #[test]
     fn demux_1_low_high() {
-        let chip = Ic74139::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[G1]);
         clear!(tr[A1]);
@@ -442,8 +444,7 @@ mod test {
 
     #[test]
     fn demux_1_high_high() {
-        let chip = Ic74139::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[G1]);
         set!(tr[A1]);
@@ -468,8 +469,7 @@ mod test {
 
     #[test]
     fn demux_2_g_high() {
-        let chip = Ic74139::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         set!(tr[G2]);
         clear!(tr[A2]);
@@ -500,8 +500,7 @@ mod test {
 
     #[test]
     fn demux_2_low_low() {
-        let chip = Ic74139::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[G2]);
         clear!(tr[A2]);
@@ -526,8 +525,7 @@ mod test {
 
     #[test]
     fn demux_2_high_low() {
-        let chip = Ic74139::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[G2]);
         set!(tr[A2]);
@@ -552,8 +550,7 @@ mod test {
 
     #[test]
     fn demux_2_low_high() {
-        let chip = Ic74139::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[G2]);
         clear!(tr[A2]);
@@ -578,8 +575,7 @@ mod test {
 
     #[test]
     fn demux_2_high_high() {
-        let chip = Ic74139::new();
-        let tr = make_traces(&chip);
+        let (_, tr) = before_each();
 
         clear!(tr[G2]);
         set!(tr[A2]);

@@ -292,22 +292,22 @@ mod test {
 
     use super::*;
 
-    fn before_each() -> Vec<TraceRef> {
+    fn before_each() -> (DeviceRef, Vec<TraceRef>) {
         let chip = Ic74257::new();
-        let tr = make_traces(&chip);
-        tr
+        let tr = make_traces(clone_ref!(chip));
+        (chip, tr)
     }
 
-    fn before_mux_1() -> Vec<TraceRef> {
-        let tr = before_each();
+    fn before_mux_1() -> (DeviceRef, Vec<TraceRef>) {
+        let (chip, tr) = before_each();
         clear!(tr[A1]);
         set!(tr[B1]);
-        tr
+        (chip, tr)
     }
 
     #[test]
     fn mux_1_select_a() {
-        let tr = before_mux_1();
+        let (_, tr) = before_mux_1();
 
         clear!(tr[SEL]);
         assert!(
@@ -324,7 +324,7 @@ mod test {
 
     #[test]
     fn mux_1_select_b() {
-        let tr = before_mux_1();
+        let (_, tr) = before_mux_1();
 
         set!(tr[SEL]);
         assert!(
@@ -341,7 +341,7 @@ mod test {
 
     #[test]
     fn mux_1_oe_high() {
-        let tr = before_mux_1();
+        let (_, tr) = before_mux_1();
 
         set!(tr[SEL]);
         assert!(
@@ -356,16 +356,16 @@ mod test {
         assert!(floating!(tr[Y1]), "Y1 should float when OE is high");
     }
 
-    fn before_mux_2() -> Vec<TraceRef> {
-        let tr = before_each();
+    fn before_mux_2() -> (DeviceRef, Vec<TraceRef>) {
+        let (chip, tr) = before_each();
         clear!(tr[A2]);
         set!(tr[B2]);
-        tr
+        (chip, tr)
     }
 
     #[test]
     fn mux_2_select_a() {
-        let tr = before_mux_2();
+        let (_, tr) = before_mux_2();
 
         clear!(tr[SEL]);
         assert!(
@@ -382,7 +382,7 @@ mod test {
 
     #[test]
     fn mux_2_select_b() {
-        let tr = before_mux_2();
+        let (_, tr) = before_mux_2();
 
         set!(tr[SEL]);
         assert!(
@@ -399,7 +399,7 @@ mod test {
 
     #[test]
     fn mux_2_oe_high() {
-        let tr = before_mux_2();
+        let (_, tr) = before_mux_2();
 
         set!(tr[SEL]);
         assert!(
@@ -414,16 +414,16 @@ mod test {
         assert!(floating!(tr[Y2]), "Y2 should float when OE is high");
     }
 
-    fn before_mux_3() -> Vec<TraceRef> {
-        let tr = before_each();
+    fn before_mux_3() -> (DeviceRef, Vec<TraceRef>) {
+        let (chip, tr) = before_each();
         clear!(tr[A3]);
         set!(tr[B3]);
-        tr
+        (chip, tr)
     }
 
     #[test]
     fn mux_3_select_a() {
-        let tr = before_mux_3();
+        let (_, tr) = before_mux_3();
 
         clear!(tr[SEL]);
         assert!(
@@ -440,7 +440,7 @@ mod test {
 
     #[test]
     fn mux_3_select_b() {
-        let tr = before_mux_3();
+        let (_, tr) = before_mux_3();
 
         set!(tr[SEL]);
         assert!(
@@ -457,7 +457,7 @@ mod test {
 
     #[test]
     fn mux_3_oe_high() {
-        let tr = before_mux_3();
+        let (_, tr) = before_mux_3();
 
         set!(tr[SEL]);
         assert!(
@@ -472,16 +472,16 @@ mod test {
         assert!(floating!(tr[Y3]), "Y3 should float when OE is high");
     }
 
-    fn before_mux_4() -> Vec<TraceRef> {
-        let tr = before_each();
+    fn before_mux_4() -> (DeviceRef, Vec<TraceRef>) {
+        let (chip, tr) = before_each();
         clear!(tr[A4]);
         set!(tr[B4]);
-        tr
+        (chip, tr)
     }
 
     #[test]
     fn mux_4_select_a() {
-        let tr = before_mux_4();
+        let (_, tr) = before_mux_4();
 
         clear!(tr[SEL]);
         assert!(
@@ -498,7 +498,7 @@ mod test {
 
     #[test]
     fn mux_4_select_b() {
-        let tr = before_mux_4();
+        let (_, tr) = before_mux_4();
 
         set!(tr[SEL]);
         assert!(
@@ -515,7 +515,7 @@ mod test {
 
     #[test]
     fn mux_4_oe_high() {
-        let tr = before_mux_4();
+        let (_, tr) = before_mux_4();
 
         set!(tr[SEL]);
         assert!(
