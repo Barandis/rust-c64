@@ -10,7 +10,7 @@ use std::{
 };
 
 use super::{
-    device::{DeviceRef, LevelChangeEvent},
+    device::{DeviceRef, LevelChange},
     trace::TraceRef,
 };
 
@@ -325,9 +325,10 @@ impl Pin {
 
     /// Notifies this pin's observers of a change to its
     fn notify(&self, old_level: Option<f64>, new_level: Option<f64>) {
-        let event = LevelChangeEvent(self.number, old_level, new_level);
+        let pin = Rc::new(RefCell::new(self));
+        let event = &LevelChange(pin, old_level, new_level);
         for ob in self.device.iter() {
-            ob.borrow_mut().update(&event);
+            ob.borrow_mut().update(event);
         }
     }
 }
@@ -863,7 +864,7 @@ mod test {
     }
 
     impl Device for TestDevice {
-        fn update(&mut self, event: &LevelChangeEvent) {
+        fn update(&mut self, event: &LevelChange) {
             self.count += 1;
             self.level = event.2;
         }

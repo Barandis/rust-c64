@@ -49,12 +49,15 @@ pub mod constants {
     pub const GND: usize = 10;
 }
 
-use crate::components::{
-    device::{Device, DeviceRef, LevelChangeEvent},
-    pin::{
-        Mode::{Input, Output, Unconnected},
-        PinRef,
+use crate::{
+    components::{
+        device::{Device, DeviceRef, LevelChange},
+        pin::{
+            Mode::{Input, Output, Unconnected},
+            PinRef,
+        },
     },
+    utils::value_high,
 };
 
 use self::constants::*;
@@ -202,64 +205,58 @@ impl Device for Ic74373 {
         vec![]
     }
 
-    fn update(&mut self, event: &LevelChangeEvent) {
+    fn update(&mut self, event: &LevelChange) {
         match event {
-            LevelChangeEvent(p, _, level) if INPUTS.contains(p) => {
+            LevelChange(pin, _, level) if INPUTS.contains(&number!(pin)) => {
                 if high!(self.pins[LE]) && !high!(self.pins[OE]) {
-                    let q = output_for(*p);
-                    match level {
-                        Some(value) if *value >= 0.5 => set!(self.pins[q]),
-                        _ => clear!(self.pins[q]),
+                    let q = output_for(number!(pin));
+                    if value_high(*level) {
+                        set!(self.pins[q]);
+                    } else {
+                        clear!(self.pins[q]);
                     }
                 }
             }
-            LevelChangeEvent(p, _, level) if *p == LE => match level {
-                Some(value) if *value >= 0.5 => {
+            LevelChange(pin, _, level) if number!(pin) == LE => {
+                if value_high(*level) {
                     for (i, d) in IntoIterator::into_iter(INPUTS).enumerate() {
                         let q = output_for(d);
-                        set_level!(
-                            self.pins[q],
-                            match level!(self.pins[d]) {
-                                Some(value) if value >= 0.5 => Some(1.0),
-                                _ => Some(0.0),
-                            }
-                        );
+                        if value_high(level!(self.pins[d])) {
+                            set!(self.pins[q]);
+                        } else {
+                            clear!(self.pins[q]);
+                        }
                         self.latches[i] = None;
                     }
-                }
-                _ => {
+                } else {
                     for (i, d) in IntoIterator::into_iter(INPUTS).enumerate() {
-                        self.latches[i] = match level!(self.pins[d]) {
-                            Some(value) if value >= 0.5 => Some(1.0),
-                            _ => Some(0.0),
-                        }
+                        self.latches[i] = if value_high(level!(self.pins[d])) {
+                            Some(1.0)
+                        } else {
+                            Some(0.0)
+                        };
                     }
                 }
-            },
-            LevelChangeEvent(p, _, level) if *p == OE => match level {
-                Some(value) if *value >= 0.5 => {
+            }
+            LevelChange(pin, _, level) if number!(pin) == OE => {
+                if value_high(*level) {
                     for q in OUTPUTS {
                         float!(self.pins[q]);
                     }
-                }
-                _ => {
+                } else {
                     let latched = !high!(self.pins[LE]);
                     for (i, d) in IntoIterator::into_iter(INPUTS).enumerate() {
                         let q = output_for(d);
-                        set_level!(
-                            self.pins[q],
-                            if latched {
-                                self.latches[i]
-                            } else {
-                                match level!(self.pins[d]) {
-                                    Some(value) if value >= 0.5 => Some(1.0),
-                                    _ => Some(0.0),
-                                }
-                            }
-                        );
+                        if latched {
+                            set_level!(self.pins[q], self.latches[i]);
+                        } else if value_high(level!(self.pins[d])) {
+                            set!(self.pins[q]);
+                        } else {
+                            clear!(self.pins[q]);
+                        }
                     }
                 }
-            },
+            }
             _ => (),
         }
     }

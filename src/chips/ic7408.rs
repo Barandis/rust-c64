@@ -38,12 +38,15 @@ pub mod constants {
     pub const GND: usize = 7;
 }
 
-use crate::components::{
-    device::{Device, DeviceRef, LevelChangeEvent},
-    pin::{
-        Mode::{Input, Output, Unconnected},
-        PinRef,
+use crate::{
+    components::{
+        device::{Device, DeviceRef, LevelChange},
+        pin::{
+            Mode::{Input, Output, Unconnected},
+            PinRef,
+        },
     },
+    utils::value_high,
 };
 
 use self::constants::*;
@@ -162,23 +165,22 @@ impl Device for Ic7408 {
         vec![]
     }
 
-    fn update(&mut self, event: &LevelChangeEvent) {
+    fn update(&mut self, event: &LevelChange) {
         match event {
-            LevelChangeEvent(p, _, level) if INPUTS.contains(p) => match level {
-                Some(value) if *value >= 0.5 => {
-                    let (i, o) = input_output_for(*p);
+            LevelChange(pin, _, level) if INPUTS.contains(&number!(pin)) => {
+                if value_high(*level) {
+                    let (i, o) = input_output_for(number!(pin));
                     if high!(self.pins[i]) {
                         set!(self.pins[o]);
                     } else {
                         clear!(self.pins[o]);
                     }
-                }
-                _ => {
-                    let (_, o) = input_output_for(*p);
+                } else {
+                    let (_, o) = input_output_for(number!(pin));
                     clear!(self.pins[o]);
                 }
-            },
-            _ => (),
+            }
+            _ => {}
         }
     }
 }

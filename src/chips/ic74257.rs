@@ -44,12 +44,15 @@ pub mod constants {
     pub const GND: usize = 8;
 }
 
-use crate::components::{
-    device::{Device, DeviceRef, LevelChangeEvent},
-    pin::{
-        Mode::{Input, Output, Unconnected},
-        PinRef,
+use crate::{
+    components::{
+        device::{Device, DeviceRef, LevelChange},
+        pin::{
+            Mode::{Input, Output, Unconnected},
+            PinRef,
+        },
     },
+    utils::value_high,
 };
 
 use self::constants::*;
@@ -182,7 +185,7 @@ impl Device for Ic74257 {
         vec![]
     }
 
-    fn update(&mut self, event: &LevelChangeEvent) {
+    fn update(&mut self, event: &LevelChange) {
         macro_rules! select_a {
             () => {
                 if high!(self.pins[A1]) {
@@ -233,54 +236,52 @@ impl Device for Ic74257 {
         }
 
         match event {
-            LevelChangeEvent(p, _, level) if A_INPUTS.contains(p) => {
-                let y = output_for(*p);
+            LevelChange(pin, _, level) if A_INPUTS.contains(&number!(pin)) => {
+                let y = output_for(number!(pin));
                 if high!(self.pins[OE]) {
                     float!(self.pins[y]);
                 } else if low!(self.pins[SEL]) {
-                    match level {
-                        Some(value) if *value >= 0.5 => set!(self.pins[y]),
-                        _ => clear!(self.pins[y]),
+                    if value_high(*level) {
+                        set!(self.pins[y]);
+                    } else {
+                        clear!(self.pins[y]);
                     }
                 }
             }
-            LevelChangeEvent(p, _, level) if B_INPUTS.contains(p) => {
-                let y = output_for(*p);
+            LevelChange(pin, _, level) if B_INPUTS.contains(&number!(pin)) => {
+                let y = output_for(number!(pin));
                 if high!(self.pins[OE]) {
                     float!(self.pins[y]);
                 } else if high!(self.pins[SEL]) {
-                    match level {
-                        Some(value) if *value >= 0.5 => set!(self.pins[y]),
-                        _ => clear!(self.pins[y]),
+                    if value_high(*level) {
+                        set!(self.pins[y]);
+                    } else {
+                        clear!(self.pins[y]);
                     }
                 }
             }
-            LevelChangeEvent(p, _, level) if *p == SEL => {
+            LevelChange(pin, _, level) if number!(pin) == SEL => {
                 if high!(self.pins[OE]) {
                     float!(self.pins[Y1], self.pins[Y2], self.pins[Y3], self.pins[Y4]);
                 } else {
-                    match level {
-                        Some(value) if *value >= 0.5 => {
-                            select_b!();
-                        }
-                        _ => {
-                            select_a!();
-                        }
+                    if value_high(*level) {
+                        select_b!();
+                    } else {
+                        select_a!();
                     }
                 }
             }
-            LevelChangeEvent(p, _, level) if *p == OE => match level {
-                Some(value) if *value >= 0.5 => {
+            LevelChange(pin, _, level) if number!(pin) == OE => {
+                if value_high(*level) {
                     float!(self.pins[Y1], self.pins[Y2], self.pins[Y3], self.pins[Y4]);
-                }
-                _ => {
+                } else {
                     if high!(self.pins[SEL]) {
                         select_b!();
                     } else {
                         select_a!();
                     }
                 }
-            },
+            }
             _ => (),
         }
     }

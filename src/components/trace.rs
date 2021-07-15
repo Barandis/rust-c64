@@ -282,7 +282,7 @@ impl Debug for Trace {
 
 #[cfg(test)]
 mod test {
-    use crate::components::device::{Device, LevelChangeEvent};
+    use crate::components::device::{Device, LevelChange};
 
     use super::*;
     use crate::components::pin::Mode::{Bidirectional, Input, Output, Unconnected};
@@ -304,7 +304,7 @@ mod test {
     }
 
     impl Device for TestDevice {
-        fn update(&mut self, event: &LevelChangeEvent) {
+        fn update(&mut self, event: &LevelChange) {
             self.count += 1;
             self.level = event.2;
         }

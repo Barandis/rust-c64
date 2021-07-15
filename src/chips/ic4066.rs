@@ -38,12 +38,15 @@ pub mod constants {
     pub const VSS: usize = 7;
 }
 
-use crate::components::{
-    device::{Device, DeviceRef, LevelChangeEvent},
-    pin::{
-        Mode::{Bidirectional, Input, Unconnected},
-        PinRef,
+use crate::{
+    components::{
+        device::{Device, DeviceRef, LevelChange},
+        pin::{
+            Mode::{Bidirectional, Input, Unconnected},
+            PinRef,
+        },
     },
+    utils::value_high,
 };
 
 use self::constants::*;
@@ -209,56 +212,49 @@ impl Device for Ic4066 {
         vec![]
     }
 
-    fn update(&mut self, event: &LevelChangeEvent) {
+    fn update(&mut self, event: &LevelChange) {
         match event {
             // Control pin change
-            LevelChangeEvent(p, _, level) if CONTROLS.contains(p) => {
-                let (a, b) = ios_for(*p);
+            LevelChange(pin, _, level) if CONTROLS.contains(&number!(pin)) => {
+                let (a, b) = ios_for(number!(pin));
                 let apin = clone_ref!(self.pins[a]);
                 let bpin = clone_ref!(self.pins[b]);
 
-                match level {
+                if value_high(*level) {
                     // Control pin high: change I/O pins to Input mode so that they don't
                     // broadcast data but can receive it to be stored
-                    Some(value) if *value >= 0.5 => {
-                        set_mode!(apin, Input);
-                        set_mode!(bpin, Input);
-                    }
+                    set_mode!(apin, Input);
+                    set_mode!(bpin, Input);
+                } else {
                     // Control pin low: change I/O pins to Bidirectional mode and set the
                     // level of the least-recently changed pin to that of the most-recently
                     // changed
-                    _ => {
-                        set_mode!(apin, Bidirectional);
-                        set_mode!(bpin, Bidirectional);
+                    set_mode!(apin, Bidirectional);
+                    set_mode!(bpin, Bidirectional);
 
-                        let index = switch(*p);
-                        match self.last[index] {
-                            Some(pin) if pin == a => {
-                                set_level!(bpin, level!(apin))
-                            }
-                            Some(pin) if pin == b => {
-                                set_level!(apin, level!(bpin))
-                            }
-                            _ => {
-                                clear!(apin);
-                                clear!(bpin);
-                            }
+                    let index = switch(number!(pin));
+                    match self.last[index] {
+                        Some(num) if num == a => set_level!(bpin, level!(apin)),
+                        Some(num) if num == b => set_level!(apin, level!(bpin)),
+                        _ => {
+                            clear!(apin);
+                            clear!(bpin);
                         }
                     }
                 }
             }
             // I/O pin change: remember the index of the pin being changed, and if the
             // control pin is low, set the level of the associated I/O pin to the new level
-            LevelChangeEvent(p, _, level) if IOS.contains(p) => {
-                let (out, x) = io_control_for(*p);
+            LevelChange(pin, _, level) if IOS.contains(&number!(pin)) => {
+                let (out, x) = io_control_for(number!(pin));
                 let index = switch(x);
 
-                self.last[index] = Some(*p);
+                self.last[index] = Some(number!(pin));
                 if low!(self.pins[x]) {
                     set_level!(self.pins[out], *level);
                 }
             }
-            _ => (),
+            _ => {}
         }
     }
 }

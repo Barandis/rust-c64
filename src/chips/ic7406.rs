@@ -43,12 +43,15 @@ pub mod constants {
 
 use std::{cell::RefCell, rc::Rc};
 
-use crate::components::{
-    device::{Device, DeviceRef, LevelChangeEvent, DUMMY},
-    pin::{
-        Mode::{Input, Output, Unconnected},
-        Pin, PinRef,
+use crate::{
+    components::{
+        device::{Device, DeviceRef, LevelChange, DUMMY},
+        pin::{
+            Mode::{Input, Output, Unconnected},
+            Pin, PinRef,
+        },
     },
+    utils::value_high,
 };
 
 use self::constants::*;
@@ -224,16 +227,17 @@ impl Device for Ic7406 {
         Vec::new()
     }
 
-    fn update(&mut self, event: &LevelChangeEvent) {
+    fn update(&mut self, event: &LevelChange) {
         match event {
-            LevelChangeEvent(p, _, level) if INPUTS.contains(p) => {
-                let o = clone_ref!(self.pins[output_for(*p)]);
-                match level {
-                    Some(value) if *value >= 0.5 => clear!(o),
-                    _ => set!(o),
+            LevelChange(pin, _, level) if INPUTS.contains(&number!(pin)) => {
+                let o = output_for(number!(pin));
+                if value_high(*level) {
+                    clear!(self.pins[o]);
+                } else {
+                    set!(self.pins[o]);
                 }
             }
-            _ => (),
+            _ => {}
         }
     }
 }

@@ -9,13 +9,15 @@ use std::{
     rc::Rc,
 };
 
-use crate::components::pin::Mode::{Bidirectional, Input, Output, Unconnected};
-
-use super::pin::PinRef;
+use crate::components::pin::{
+    Mode::{Bidirectional, Input, Output, Unconnected},
+    Pin, PinRef,
+};
 
 pub type DeviceRef = Rc<RefCell<dyn Device>>;
 
 pub const DUMMY: &str = "__DUMMY__";
+
 pub trait Device {
     // I would like to use an array here instead of a Vec - the array is set at creation
     // time and never changes, so the mutability of a Vec is not necessary. Unfortunately,
@@ -32,7 +34,7 @@ pub trait Device {
     fn pins(&self) -> Vec<PinRef>;
     // Also would like to use an array here, but same const generic problem.
     fn registers(&self) -> Vec<u8>;
-    fn update(&mut self, event: &LevelChangeEvent);
+    fn update(&mut self, event: &LevelChange);
 
     fn debug_fmt(&self, f: &mut Formatter) -> Result {
         let alt = f.alternate();
@@ -94,5 +96,5 @@ impl Debug for dyn Device {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct LevelChangeEvent(pub usize, pub Option<f64>, pub Option<f64>);
+#[derive(Clone, Debug)]
+pub struct LevelChange<'a>(pub Rc<RefCell<&'a Pin>>, pub Option<f64>, pub Option<f64>);

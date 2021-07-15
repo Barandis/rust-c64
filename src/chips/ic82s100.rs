@@ -126,12 +126,15 @@ pub mod constants {
     pub const ROMH: usize = F7;
 }
 
-use crate::components::{
-    device::{Device, DeviceRef, LevelChangeEvent},
-    pin::{
-        Mode::{Input, Output, Unconnected},
-        PinRef,
+use crate::{
+    components::{
+        device::{Device, DeviceRef, LevelChange},
+        pin::{
+            Mode::{Input, Output, Unconnected},
+            PinRef,
+        },
     },
+    utils::value_high,
 };
 
 use self::constants::*;
@@ -323,6 +326,8 @@ use self::constants::*;
 /// In the Commodore 64, U17 is an 82S100. As detailed extensively above, it was used to
 /// decode signals to determine which chip would receive a particular read or write.
 pub struct Ic82S100 {
+    /// The pins of the 82S100, along with a dummy pin (at index 0) to ensure that the
+    /// vector index of the others matches the 1-based pin assignments.
     pins: Vec<PinRef>,
 }
 
@@ -408,16 +413,14 @@ impl Device for Ic82S100 {
         vec![]
     }
 
-    fn update(&mut self, event: &LevelChangeEvent) {
+    fn update(&mut self, event: &LevelChange) {
         macro_rules! value_in {
             ($pin:expr, $target:expr, $level:expr) => {
-                (if *$pin == $target {
+                value_high(if number!($pin) == $target {
                     *$level
                 } else {
                     level!(self.pins[$target])
                 })
-                .unwrap_or_default()
-                    >= 0.5
             };
         }
         macro_rules! value_out {
@@ -430,9 +433,7 @@ impl Device for Ic82S100 {
         }
 
         match event {
-            LevelChangeEvent(p, _, level)
-                if *p == OE && level.is_some() && level.unwrap() >= 0.5 =>
-            {
+            LevelChange(pin, _, level) if number!(pin) == OE && value_high(*level) => {
                 float!(
                     self.pins[F0],
                     self.pins[F1],
@@ -444,7 +445,7 @@ impl Device for Ic82S100 {
                     self.pins[F7]
                 );
             }
-            LevelChangeEvent(p, _, level) => {
+            LevelChange(pin, _, level) => {
                 // These are the product term equations programmed into the PLA for use in a
                 // C64. The names for each signal reflect the names of the pins that those
                 // signals come from, and while that is an excellent way to make long and
@@ -480,22 +481,22 @@ impl Device for Ic82S100 {
                 // skoe.de/docs/c64-dissected/pla/c64_pla_dissected_a4ds.pdf. If this sort
                 // of thing interests you, there's no better place for information about the
                 // C64 PLA.
-                let cas = value_in!(p, CAS, level);
-                let loram = value_in!(p, LORAM, level);
-                let hiram = value_in!(p, HIRAM, level);
-                let charen = value_in!(p, CHAREN, level);
-                let va14 = value_in!(p, VA14, level);
-                let a15 = value_in!(p, A15, level);
-                let a14 = value_in!(p, A14, level);
-                let a13 = value_in!(p, A13, level);
-                let a12 = value_in!(p, A12, level);
-                let ba = value_in!(p, BA, level);
-                let aec = value_in!(p, AEC, level);
-                let r_w = value_in!(p, R_W, level);
-                let exrom = value_in!(p, EXROM, level);
-                let game = value_in!(p, GAME, level);
-                let va13 = value_in!(p, VA13, level);
-                let va12 = value_in!(p, VA12, level);
+                let cas = value_in!(pin, CAS, level);
+                let loram = value_in!(pin, LORAM, level);
+                let hiram = value_in!(pin, HIRAM, level);
+                let charen = value_in!(pin, CHAREN, level);
+                let va14 = value_in!(pin, VA14, level);
+                let a15 = value_in!(pin, A15, level);
+                let a14 = value_in!(pin, A14, level);
+                let a13 = value_in!(pin, A13, level);
+                let a12 = value_in!(pin, A12, level);
+                let ba = value_in!(pin, BA, level);
+                let aec = value_in!(pin, AEC, level);
+                let r_w = value_in!(pin, R_W, level);
+                let exrom = value_in!(pin, EXROM, level);
+                let game = value_in!(pin, GAME, level);
+                let va13 = value_in!(pin, VA13, level);
+                let va12 = value_in!(pin, VA12, level);
 
                 // LORAM deselected, HIRAM deselected
                 // $A000 - $BFFF
@@ -539,7 +540,7 @@ impl Device for Ic82S100 {
 
                 // Unused. May be a relic from earlier design in C64 prototypes that never
                 // got removed.
-                // let p8 = i0 & i5 & i6 & !i7 & i8 & !i10 & !i11;
+                // let p8 = cas & a15 & a14 & !a12 & a11 & !aec & !r_w;
 
                 // HIRAM deselected, CHAREN deselected
                 // $D000 - $DFFF
@@ -644,7 +645,7 @@ impl Device for Ic82S100 {
                 let p28 = a15 & a14 & !a13 & !a12 & exrom & !game;
 
                 // Unused.
-                // let p29 = !i1;
+                // let p29 = !loram;
 
                 // CAS deselected
                 //
@@ -856,8 +857,8 @@ mod test {
         for value in 0..0xffff {
             let expected = get_expected(value);
 
-            value_to_traces(value as usize, trin.clone());
-            let actual = traces_to_value(trout.clone());
+            value_to_traces(value as usize, &trin);
+            let actual = traces_to_value(&trout);
 
             assert_eq!(
                 actual as usize, expected as usize,

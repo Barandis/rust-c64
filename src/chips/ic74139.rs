@@ -40,12 +40,15 @@ pub mod constants {
     pub const GND: usize = 8;
 }
 
-use crate::components::{
-    device::{Device, DeviceRef, LevelChangeEvent},
-    pin::{
-        Mode::{Input, Output, Unconnected},
-        PinRef,
+use crate::{
+    components::{
+        device::{Device, DeviceRef, LevelChange},
+        pin::{
+            Mode::{Input, Output, Unconnected},
+            PinRef,
+        },
     },
+    utils::value_high,
 };
 
 use self::constants::*;
@@ -209,7 +212,7 @@ impl Device for Ic74139 {
         vec![]
     }
 
-    fn update(&mut self, event: &LevelChangeEvent) {
+    fn update(&mut self, event: &LevelChange) {
         // Some macros to ease repitition (each of these is invoked three times in the
         // code below) and to provide some better clarity.
         //
@@ -245,65 +248,62 @@ impl Device for Ic74139 {
             // We do split the arms for the A pin versus the B pin becuase we need to do
             // something different based on which one it is (HL for AB produces a different
             // output than LH, for example)
-            LevelChangeEvent(p, _, level) if *p == A1 || *p == A2 => {
-                let (b, g) = input_control_for(*p);
-                let (y0, y1, y2, y3) = outputs(*p);
+            LevelChange(pin, _, level) if number!(pin) == A1 || number!(pin) == A2 => {
+                let (b, g) = input_control_for(number!(pin));
+                let (y0, y1, y2, y3) = outputs(number!(pin));
 
                 if high!(self.pins[g]) {
                     set!(self.pins[y0], self.pins[y1], self.pins[y2], self.pins[y3]);
                 } else {
-                    match level {
-                        Some(value) if *value >= 0.5 => {
-                            if high!(self.pins[b]) {
-                                hh!(y0, y1, y2, y3);
-                            } else {
-                                hl!(y0, y1, y2, y3);
-                            }
+                    if value_high(*level) {
+                        if high!(self.pins[b]) {
+                            hh!(y0, y1, y2, y3);
+                        } else {
+                            hl!(y0, y1, y2, y3);
                         }
-                        _ => {
-                            if high!(self.pins[b]) {
-                                lh!(y0, y1, y2, y3);
-                            } else {
-                                ll!(y0, y1, y2, y3);
-                            }
+                    } else {
+                        if high!(self.pins[b]) {
+                            lh!(y0, y1, y2, y3);
+                        } else {
+                            ll!(y0, y1, y2, y3);
                         }
                     }
                 }
             }
-            LevelChangeEvent(p, _, level) if *p == B1 || *p == B2 => {
-                let (a, g) = input_control_for(*p);
-                let (y0, y1, y2, y3) = outputs(*p);
+            LevelChange(pin, _, level) if number!(pin) == B1 || number!(pin) == B2 => {
+                let (a, g) = input_control_for(number!(pin));
+                let (y0, y1, y2, y3) = outputs(number!(pin));
 
                 if high!(self.pins[g]) {
                     set!(self.pins[y0], self.pins[y1], self.pins[y2], self.pins[y3]);
                 } else {
-                    match level {
-                        Some(value) if *value >= 0.5 => {
-                            if high!(self.pins[a]) {
-                                hh!(y0, y1, y2, y3);
-                            } else {
-                                lh!(y0, y1, y2, y3);
-                            }
+                    if value_high(*level) {
+                        if high!(self.pins[a]) {
+                            hh!(y0, y1, y2, y3);
+                        } else {
+                            lh!(y0, y1, y2, y3);
                         }
-                        _ => {
-                            if high!(self.pins[a]) {
-                                hl!(y0, y1, y2, y3);
-                            } else {
-                                ll!(y0, y1, y2, y3);
-                            }
+                    } else {
+                        if high!(self.pins[a]) {
+                            hl!(y0, y1, y2, y3);
+                        } else {
+                            ll!(y0, y1, y2, y3);
                         }
                     }
                 }
             }
-            LevelChangeEvent(p, _, level) if *p == G1 || *p == G2 => {
-                let (a, b) = inputs(*p);
-                let (y0, y1, y2, y3) = outputs(*p);
+            LevelChange(pin, _, level) if number!(pin) == G1 || number!(pin) == G2 => {
+                let (a, b) = inputs(number!(pin));
+                let (y0, y1, y2, y3) = outputs(number!(pin));
 
-                match level {
-                    Some(value) if *value >= 0.5 => {
-                        set!(self.pins[y0], self.pins[y1], self.pins[y2], self.pins[y3]);
-                    }
-                    _ => match (high!(self.pins[a]), high!(self.pins[b])) {
+                if value_high(*level) {
+                    set!(self.pins[y0], self.pins[y1], self.pins[y2], self.pins[y3]);
+                } else {
+                    match (high!(self.pins[a]), high!(self.pins[b])) {
+                        // These look like they can be expressions, but the macro expansions
+                        // are not, hence the braces. We could put the macro expansion in
+                        // braces, but that would mean an extra set of braces in the ef/else
+                        // statements above.
                         (false, false) => {
                             ll!(y0, y1, y2, y3);
                         }
@@ -316,10 +316,10 @@ impl Device for Ic74139 {
                         (true, true) => {
                             hh!(y0, y1, y2, y3);
                         }
-                    },
+                    }
                 }
             }
-            _ => (),
+            _ => {}
         }
     }
 }
