@@ -54,9 +54,10 @@ use crate::{
         device::{Device, DeviceRef, LevelChange},
         pin::{
             Mode::{Input, Output, Unconnected},
-            PinRef,
+            Pin, PinRef,
         },
     },
+    ref_vec::RefVec,
     utils::value_high,
 };
 
@@ -115,7 +116,7 @@ const OUTPUTS: [usize; 8] = [Q0, Q1, Q2, Q3, Q4, Q5, Q6, Q7];
 pub struct Ic74373 {
     /// The pins of the 74373, along with a dummy pin (at index 0) to ensure that the vector
     /// index of the others matches the 1-based pin assignments.
-    pins: Vec<PinRef>,
+    pins: RefVec<Pin>,
 
     /// The latched output values for each output pin. When the outputs are not being
     /// latched, all of the values here will be `None`.

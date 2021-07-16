@@ -3,6 +3,18 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+macro_rules! refvec {
+    () => (
+        $crate::ref_vec::RefVec::new()
+    );
+    ($item:expr, $n:expr) => (
+        $crate::ref_vec::RefVec::with_vec(vec![$item; $n])
+    );
+    ($($x:expr),+ $(,)?) => (
+        $crate::ref_vec::RefVec::with_vec(vec![$($x),+])
+    );
+}
+
 macro_rules! pin {
     ($number:expr, $name:expr, $mode:expr $(,)?) => {
         $crate::components::pin::Pin::new($number, $name, $mode)
@@ -12,7 +24,7 @@ macro_rules! pin {
 macro_rules! pins {
     ($($pin:expr),* $(,)?) => {
         {
-            let mut v = vec![
+            let mut v = refvec![
                 pin!(
                     0,
                     $crate::components::device::DUMMY,
@@ -165,5 +177,11 @@ macro_rules! attach {
 macro_rules! detach {
     ($pin:expr $(,)?) => {
         $pin.borrow_mut().detach()
+    };
+}
+
+macro_rules! attach_to {
+    ($device:expr, $($pin:expr),+ $(,)?) => {
+        $(attach!($pin, clone_ref!($device)));+
     };
 }

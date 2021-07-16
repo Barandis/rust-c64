@@ -51,6 +51,7 @@ use crate::{
             Pin, PinRef,
         },
     },
+    ref_vec::RefVec,
     utils::value_high,
 };
 
@@ -89,7 +90,7 @@ const INPUTS: [usize; 6] = [A1, A2, A3, A4, A5, A6];
 pub struct Ic7406 {
     /// The pins of the 7406, along with a dummy pin (at index 0) to ensure that the vector
     /// index of the others matches the 1-based pin assignments.
-    pins: Vec<PinRef>,
+    pins: RefVec<Pin>,
 }
 
 impl Ic7406 {
@@ -167,7 +168,7 @@ impl Ic7406 {
         let vcc = Pin::new(VCC, "VCC", Unconnected);
 
         let chip: Rc<RefCell<dyn Device>> = Rc::new(RefCell::new(Ic7406 {
-            pins: vec![
+            pins: refvec![
                 Rc::clone(&dummy),
                 Rc::clone(&a1),
                 Rc::clone(&y1),

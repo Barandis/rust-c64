@@ -43,9 +43,10 @@ use crate::{
         device::{Device, DeviceRef, LevelChange},
         pin::{
             Mode::{Bidirectional, Input, Unconnected},
-            PinRef,
+            Pin, PinRef,
         },
     },
+    ref_vec::RefVec,
     utils::value_high,
 };
 
@@ -105,7 +106,7 @@ const CONTROLS: [usize; 4] = [X1, X2, X3, X4];
 pub struct Ic4066 {
     /// The pins of the 4066, along with a dummy pin (at index 0) to ensure that the vector
     /// index of the others matches the 1-based pin assignments.
-    pins: Vec<PinRef>,
+    pins: RefVec<Pin>,
 
     /// The index of the last I/O pin whose value has changed. There are four of these in
     /// this vector, one for each switch. These values are used to know what value to set

@@ -49,9 +49,10 @@ use crate::{
         device::{Device, DeviceRef, LevelChange},
         pin::{
             Mode::{Input, Output, Unconnected},
-            PinRef,
+            Pin, PinRef,
         },
     },
+    ref_vec::RefVec,
     utils::value_high,
 };
 
@@ -105,7 +106,7 @@ const B_INPUTS: [usize; 4] = [B1, B2, B3, B4];
 pub struct Ic74258 {
     /// The pins of the 74258, along with a dummy pin (at index 0) to ensure that the vector
     /// index of the others matches the 1-based pin assignments.
-    pins: Vec<PinRef>,
+    pins: RefVec<Pin>,
 }
 
 impl Ic74258 {
