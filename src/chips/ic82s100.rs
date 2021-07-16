@@ -706,7 +706,7 @@ impl Device for Ic82S100 {
 #[cfg(test)]
 mod test {
     use crate::{
-        components::trace::TraceRef,
+        components::trace::{Trace, TraceRef},
         test_utils::{make_traces, traces_to_value, value_to_traces},
     };
 
@@ -821,16 +821,20 @@ mod test {
         output
     }
 
-    fn before_each() -> (DeviceRef, Vec<TraceRef>, Vec<TraceRef>, Vec<TraceRef>) {
+    fn before_each() -> (DeviceRef, RefVec<Trace>, RefVec<Trace>, RefVec<Trace>) {
         let device = Ic82S100::new();
         let tr = make_traces(clone_ref!(device));
 
-        let trin = IntoIterator::into_iter(INPUTS)
-            .map(|p| clone_ref!(tr[p]))
-            .collect::<Vec<TraceRef>>();
-        let trout = IntoIterator::into_iter(OUTPUTS)
-            .map(|p| clone_ref!(tr[p]))
-            .collect::<Vec<TraceRef>>();
+        let trin = RefVec::with_vec(
+            IntoIterator::into_iter(INPUTS)
+                .map(|p| clone_ref!(tr[p]))
+                .collect::<Vec<TraceRef>>(),
+        );
+        let trout = RefVec::with_vec(
+            IntoIterator::into_iter(OUTPUTS)
+                .map(|p| clone_ref!(tr[p]))
+                .collect::<Vec<TraceRef>>(),
+        );
 
         (device, tr, trin, trout)
     }

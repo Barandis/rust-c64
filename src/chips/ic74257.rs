@@ -290,17 +290,17 @@ impl Device for Ic74257 {
 
 #[cfg(test)]
 mod test {
-    use crate::{components::trace::TraceRef, test_utils::make_traces};
+    use crate::{components::trace::Trace, test_utils::make_traces};
 
     use super::*;
 
-    fn before_each() -> (DeviceRef, Vec<TraceRef>) {
+    fn before_each() -> (DeviceRef, RefVec<Trace>) {
         let chip = Ic74257::new();
         let tr = make_traces(clone_ref!(chip));
         (chip, tr)
     }
 
-    fn before_mux_1() -> (DeviceRef, Vec<TraceRef>) {
+    fn before_mux_1() -> (DeviceRef, RefVec<Trace>) {
         let (chip, tr) = before_each();
         clear!(tr[A1]);
         set!(tr[B1]);
@@ -358,7 +358,7 @@ mod test {
         assert!(floating!(tr[Y1]), "Y1 should float when OE is high");
     }
 
-    fn before_mux_2() -> (DeviceRef, Vec<TraceRef>) {
+    fn before_mux_2() -> (DeviceRef, RefVec<Trace>) {
         let (chip, tr) = before_each();
         clear!(tr[A2]);
         set!(tr[B2]);
@@ -416,7 +416,7 @@ mod test {
         assert!(floating!(tr[Y2]), "Y2 should float when OE is high");
     }
 
-    fn before_mux_3() -> (DeviceRef, Vec<TraceRef>) {
+    fn before_mux_3() -> (DeviceRef, RefVec<Trace>) {
         let (chip, tr) = before_each();
         clear!(tr[A3]);
         set!(tr[B3]);
@@ -474,7 +474,7 @@ mod test {
         assert!(floating!(tr[Y3]), "Y3 should float when OE is high");
     }
 
-    fn before_mux_4() -> (DeviceRef, Vec<TraceRef>) {
+    fn before_mux_4() -> (DeviceRef, RefVec<Trace>) {
         let (chip, tr) = before_each();
         clear!(tr[A4]);
         set!(tr[B4]);

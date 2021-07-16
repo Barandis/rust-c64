@@ -327,11 +327,11 @@ impl Device for Ic74139 {
 
 #[cfg(test)]
 mod test {
-    use crate::{components::trace::TraceRef, test_utils::make_traces};
+    use crate::{components::trace::Trace, test_utils::make_traces};
 
     use super::*;
 
-    fn before_each() -> (DeviceRef, Vec<TraceRef>) {
+    fn before_each() -> (DeviceRef, RefVec<Trace>) {
         let chip = Ic74139::new();
         let tr = make_traces(clone_ref!(chip));
         (chip, tr)
