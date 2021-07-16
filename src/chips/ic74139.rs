@@ -156,21 +156,15 @@ impl Ic74139 {
         let vcc = pin!(VCC, "VCC", Unconnected);
         let gnd = pin!(GND, "GND", Unconnected);
 
-        let chip: DeviceRef = new_ref!(Ic74139 {
+        let device: DeviceRef = new_ref!(Ic74139 {
             pins: pins![a1, a2, b1, b2, g1, g2, y10, y11, y12, y13, y20, y21, y22, y23, vcc, gnd]
         });
 
         set!(y11, y12, y13, y21, y22, y23);
         clear!(y10, y20);
+        attach_to!(device, a1, a2, b1, b2, g1, g2);
 
-        attach!(a1, clone_ref!(chip));
-        attach!(b1, clone_ref!(chip));
-        attach!(g1, clone_ref!(chip));
-        attach!(a2, clone_ref!(chip));
-        attach!(b2, clone_ref!(chip));
-        attach!(g2, clone_ref!(chip));
-
-        chip
+        device
     }
 }
 

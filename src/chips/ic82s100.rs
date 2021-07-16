@@ -382,24 +382,9 @@ impl Ic82S100 {
 
         clear!(f0);
         set!(f1, f2, f3, f4, f5, f6, f7);
-
-        attach!(i0, clone_ref!(device));
-        attach!(i1, clone_ref!(device));
-        attach!(i2, clone_ref!(device));
-        attach!(i3, clone_ref!(device));
-        attach!(i4, clone_ref!(device));
-        attach!(i5, clone_ref!(device));
-        attach!(i6, clone_ref!(device));
-        attach!(i7, clone_ref!(device));
-        attach!(i8, clone_ref!(device));
-        attach!(i9, clone_ref!(device));
-        attach!(i10, clone_ref!(device));
-        attach!(i11, clone_ref!(device));
-        attach!(i12, clone_ref!(device));
-        attach!(i13, clone_ref!(device));
-        attach!(i14, clone_ref!(device));
-        attach!(i15, clone_ref!(device));
-        attach!(oe, clone_ref!(device));
+        attach_to!(
+            device, i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10, i11, i12, i13, i14, i15, oe
+        );
 
         device
     }

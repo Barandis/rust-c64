@@ -145,24 +145,14 @@ impl Ic74257 {
         let vcc = pin!(VCC, "VCC", Unconnected);
         let gnd = pin!(GND, "GND", Unconnected);
 
-        let chip: DeviceRef = new_ref!(Ic74257 {
+        let device: DeviceRef = new_ref!(Ic74257 {
             pins: pins![a1, a2, a3, a4, b1, b2, b3, b4, y1, y2, y3, y4, oe, sel, vcc, gnd],
         });
 
         clear!(y1, y2, y3, y4);
+        attach_to!(device, a1, a2, a3, a4, b1, b2, b3, b4, sel, oe);
 
-        attach!(sel, clone_ref!(chip));
-        attach!(oe, clone_ref!(chip));
-        attach!(a1, clone_ref!(chip));
-        attach!(b1, clone_ref!(chip));
-        attach!(a2, clone_ref!(chip));
-        attach!(b2, clone_ref!(chip));
-        attach!(a3, clone_ref!(chip));
-        attach!(b3, clone_ref!(chip));
-        attach!(a4, clone_ref!(chip));
-        attach!(b4, clone_ref!(chip));
-
-        chip
+        device
     }
 }
 

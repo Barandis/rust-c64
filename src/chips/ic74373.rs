@@ -158,7 +158,7 @@ impl Ic74373 {
         let vcc = pin!(VCC, "VCC", Unconnected);
         let gnd = pin!(GND, "GND", Unconnected);
 
-        let chip: DeviceRef = new_ref!(Ic74373 {
+        let device: DeviceRef = new_ref!(Ic74373 {
             pins: pins![
                 d0, d1, d2, d3, d4, d5, d6, d7, q0, q1, q2, q3, q4, q5, q6, q7, oe, le, vcc, gnd
             ],
@@ -166,19 +166,9 @@ impl Ic74373 {
         });
 
         clear!(q0, q1, q2, q3, q4, q5, q6, q7);
+        attach_to!(device, d0, d1, d2, d3, d4, d5, d6, d7, le, oe);
 
-        attach!(d0, clone_ref!(chip));
-        attach!(d1, clone_ref!(chip));
-        attach!(d2, clone_ref!(chip));
-        attach!(d3, clone_ref!(chip));
-        attach!(d4, clone_ref!(chip));
-        attach!(d5, clone_ref!(chip));
-        attach!(d6, clone_ref!(chip));
-        attach!(d7, clone_ref!(chip));
-        attach!(oe, clone_ref!(chip));
-        attach!(le, clone_ref!(chip));
-
-        chip
+        device
     }
 }
 

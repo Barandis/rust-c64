@@ -119,21 +119,15 @@ impl Ic7406 {
         let gnd = pin!(GND, "GND", Unconnected);
         let vcc = pin!(VCC, "VCC", Unconnected);
 
-        let chip: DeviceRef = new_ref!(Ic7406 {
+        let device: DeviceRef = new_ref!(Ic7406 {
             pins: pins![a1, a2, a3, a4, a5, a6, y1, y2, y3, y4, y5, y6, vcc, gnd],
         });
 
         // All outputs begin high since all of the inputs begin non-high.
         set!(y1, y2, y3, y4, y5, y6);
+        attach_to!(device, a1, a2, a3, a4, a5, a6);
 
-        attach!(a1, clone_ref!(chip));
-        attach!(a2, clone_ref!(chip));
-        attach!(a3, clone_ref!(chip));
-        attach!(a4, clone_ref!(chip));
-        attach!(a5, clone_ref!(chip));
-        attach!(a6, clone_ref!(chip));
-
-        chip
+        device
     }
 
     /// Creates a new Ic7406 hex inverter emulation and returns a shared, internally mutable
@@ -167,8 +161,8 @@ impl Ic7406 {
         let gnd = Pin::new(GND, "GND", Unconnected);
         let vcc = Pin::new(VCC, "VCC", Unconnected);
 
-        let chip: Rc<RefCell<dyn Device>> = Rc::new(RefCell::new(Ic7406 {
-            pins: refvec![
+        let device: Rc<RefCell<dyn Device>> = Rc::new(RefCell::new(Ic7406 {
+            pins: RefVec::with_vec(vec![
                 Rc::clone(&dummy),
                 Rc::clone(&a1),
                 Rc::clone(&y1),
@@ -184,7 +178,7 @@ impl Ic7406 {
                 Rc::clone(&y6),
                 Rc::clone(&a6),
                 Rc::clone(&vcc),
-            ],
+            ]),
         }));
 
         // All outputs begin high since all of the inputs begin non-high.
@@ -195,14 +189,14 @@ impl Ic7406 {
         y5.borrow_mut().set();
         y6.borrow_mut().set();
 
-        a1.borrow_mut().attach(Rc::clone(&chip));
-        a2.borrow_mut().attach(Rc::clone(&chip));
-        a3.borrow_mut().attach(Rc::clone(&chip));
-        a4.borrow_mut().attach(Rc::clone(&chip));
-        a5.borrow_mut().attach(Rc::clone(&chip));
-        a6.borrow_mut().attach(Rc::clone(&chip));
+        a1.borrow_mut().attach(Rc::clone(&device));
+        a2.borrow_mut().attach(Rc::clone(&device));
+        a3.borrow_mut().attach(Rc::clone(&device));
+        a4.borrow_mut().attach(Rc::clone(&device));
+        a5.borrow_mut().attach(Rc::clone(&device));
+        a6.borrow_mut().attach(Rc::clone(&device));
 
-        chip
+        device
     }
 }
 

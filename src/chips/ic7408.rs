@@ -121,23 +121,15 @@ impl Ic7408 {
         let vcc = pin!(VCC, "VCC", Unconnected);
         let gnd = pin!(GND, "GND", Unconnected);
 
-        let chip: DeviceRef = new_ref!(Ic7408 {
+        let device: DeviceRef = new_ref!(Ic7408 {
             pins: pins![a1, a2, a3, a4, b1, b2, b3, b4, y1, y2, y3, y4, vcc, gnd],
         });
 
         // All output pins begin low because none have any high inputs.
         clear!(y1, y2, y3, y4);
+        attach_to!(device, a1, a2, a3, a4, b1, b2, b3, b4);
 
-        attach!(a1, clone_ref!(chip));
-        attach!(b1, clone_ref!(chip));
-        attach!(a2, clone_ref!(chip));
-        attach!(b2, clone_ref!(chip));
-        attach!(a3, clone_ref!(chip));
-        attach!(b3, clone_ref!(chip));
-        attach!(a4, clone_ref!(chip));
-        attach!(b4, clone_ref!(chip));
-
-        chip
+        device
     }
 }
 

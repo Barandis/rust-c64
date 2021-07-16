@@ -144,25 +144,14 @@ impl Ic4066 {
 
         let last = vec![None, None, None, None];
 
-        let chip: DeviceRef = new_ref!(Ic4066 {
+        let device: DeviceRef = new_ref!(Ic4066 {
             pins: pins![a1, a2, a3, a4, b1, b2, b3, b4, x1, x2, x3, x4, vdd, vss],
             last,
         });
 
-        attach!(a1, clone_ref!(chip));
-        attach!(b1, clone_ref!(chip));
-        attach!(x1, clone_ref!(chip));
-        attach!(a2, clone_ref!(chip));
-        attach!(b2, clone_ref!(chip));
-        attach!(x2, clone_ref!(chip));
-        attach!(a3, clone_ref!(chip));
-        attach!(b3, clone_ref!(chip));
-        attach!(x3, clone_ref!(chip));
-        attach!(a4, clone_ref!(chip));
-        attach!(b4, clone_ref!(chip));
-        attach!(x4, clone_ref!(chip));
+        attach_to!(device, a1, a2, a3, a4, b1, b2, b3, b4, x1, x2, x3, x4);
 
-        chip
+        device
     }
 }
 
