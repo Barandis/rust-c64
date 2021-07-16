@@ -6,8 +6,8 @@
 #[macro_use]
 mod macros;
 
-pub mod chips;
 pub mod components;
+pub mod devices;
 pub mod ref_vec;
 pub mod utils;
 

@@ -108,7 +108,7 @@ use std::{cell::RefCell, rc::Rc};
 /// original's items.
 pub struct RefVec<T>(Vec<Rc<RefCell<T>>>);
 
-/// Here is the iterator itself. It calls `Rc::clone()` on each item referencd in the
+/// Here is the iterator itself. It calls `Rc::clone()` on each item referenced in the
 /// underlying vector and returns that instead of a plain reference.
 pub struct RefIter<'a, T>(&'a [Rc<RefCell<T>>]);
 
