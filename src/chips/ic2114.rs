@@ -166,7 +166,7 @@ impl Device for Ic2114 {
         }
 
         match event {
-            LevelChange(pin, _, _) if number!(pin) == CS => {
+            LevelChange(pin) if number!(pin) == CS => {
                 if high!(pin) {
                     mode_to_pins(Input, &self.data_pins);
                 } else if high!(self.pins[WE]) {
@@ -175,7 +175,7 @@ impl Device for Ic2114 {
                     write!();
                 }
             }
-            LevelChange(pin, _, _) if number!(pin) == WE => {
+            LevelChange(pin) if number!(pin) == WE => {
                 if !high!(self.pins[CS]) {
                     if high!(pin) {
                         read!();
@@ -184,7 +184,7 @@ impl Device for Ic2114 {
                     }
                 }
             }
-            LevelChange(pin, _, _) if PA_ADDRESS.contains(&number!(pin)) => {
+            LevelChange(pin) if PA_ADDRESS.contains(&number!(pin)) => {
                 if !high!(self.pins[CS]) {
                     if high!(self.pins[WE]) {
                         read!();

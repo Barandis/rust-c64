@@ -53,7 +53,6 @@ use crate::{
         },
     },
     ref_vec::RefVec,
-    utils::value_high,
 };
 
 use self::constants::*;
@@ -227,43 +226,43 @@ impl Device for Ic74257 {
         }
 
         match event {
-            LevelChange(pin, _, level) if A_INPUTS.contains(&number!(pin)) => {
+            LevelChange(pin) if A_INPUTS.contains(&number!(pin)) => {
                 let y = output_for(number!(pin));
                 if high!(self.pins[OE]) {
                     float!(self.pins[y]);
                 } else if low!(self.pins[SEL]) {
-                    if value_high(*level) {
+                    if high!(pin) {
                         set!(self.pins[y]);
                     } else {
                         clear!(self.pins[y]);
                     }
                 }
             }
-            LevelChange(pin, _, level) if B_INPUTS.contains(&number!(pin)) => {
+            LevelChange(pin) if B_INPUTS.contains(&number!(pin)) => {
                 let y = output_for(number!(pin));
                 if high!(self.pins[OE]) {
                     float!(self.pins[y]);
                 } else if high!(self.pins[SEL]) {
-                    if value_high(*level) {
+                    if high!(pin) {
                         set!(self.pins[y]);
                     } else {
                         clear!(self.pins[y]);
                     }
                 }
             }
-            LevelChange(pin, _, level) if number!(pin) == SEL => {
+            LevelChange(pin) if number!(pin) == SEL => {
                 if high!(self.pins[OE]) {
                     float!(self.pins[Y1], self.pins[Y2], self.pins[Y3], self.pins[Y4]);
                 } else {
-                    if value_high(*level) {
+                    if high!(pin) {
                         select_b!();
                     } else {
                         select_a!();
                     }
                 }
             }
-            LevelChange(pin, _, level) if number!(pin) == OE => {
-                if value_high(*level) {
+            LevelChange(pin) if number!(pin) == OE => {
+                if high!(pin) {
                     float!(self.pins[Y1], self.pins[Y2], self.pins[Y3], self.pins[Y4]);
                 } else {
                     if high!(self.pins[SEL]) {

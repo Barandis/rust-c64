@@ -49,7 +49,6 @@ use crate::{
         },
     },
     ref_vec::RefVec,
-    utils::value_high,
 };
 
 use self::constants::*;
@@ -243,14 +242,14 @@ impl Device for Ic74139 {
             // We do split the arms for the A pin versus the B pin becuase we need to do
             // something different based on which one it is (HL for AB produces a different
             // output than LH, for example)
-            LevelChange(pin, _, level) if number!(pin) == A1 || number!(pin) == A2 => {
+            LevelChange(pin) if number!(pin) == A1 || number!(pin) == A2 => {
                 let (b, g) = input_control_for(number!(pin));
                 let (y0, y1, y2, y3) = outputs(number!(pin));
 
                 if high!(self.pins[g]) {
                     set!(self.pins[y0], self.pins[y1], self.pins[y2], self.pins[y3]);
                 } else {
-                    if value_high(*level) {
+                    if high!(pin) {
                         if high!(self.pins[b]) {
                             hh!(y0, y1, y2, y3);
                         } else {
@@ -265,14 +264,14 @@ impl Device for Ic74139 {
                     }
                 }
             }
-            LevelChange(pin, _, level) if number!(pin) == B1 || number!(pin) == B2 => {
+            LevelChange(pin) if number!(pin) == B1 || number!(pin) == B2 => {
                 let (a, g) = input_control_for(number!(pin));
                 let (y0, y1, y2, y3) = outputs(number!(pin));
 
                 if high!(self.pins[g]) {
                     set!(self.pins[y0], self.pins[y1], self.pins[y2], self.pins[y3]);
                 } else {
-                    if value_high(*level) {
+                    if high!(pin) {
                         if high!(self.pins[a]) {
                             hh!(y0, y1, y2, y3);
                         } else {
@@ -287,11 +286,11 @@ impl Device for Ic74139 {
                     }
                 }
             }
-            LevelChange(pin, _, level) if number!(pin) == G1 || number!(pin) == G2 => {
+            LevelChange(pin) if number!(pin) == G1 || number!(pin) == G2 => {
                 let (a, b) = inputs(number!(pin));
                 let (y0, y1, y2, y3) = outputs(number!(pin));
 
-                if value_high(*level) {
+                if high!(pin) {
                     set!(self.pins[y0], self.pins[y1], self.pins[y2], self.pins[y3]);
                 } else {
                     match (high!(self.pins[a]), high!(self.pins[b])) {

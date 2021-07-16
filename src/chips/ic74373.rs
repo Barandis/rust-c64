@@ -58,7 +58,6 @@ use crate::{
         },
     },
     ref_vec::RefVec,
-    utils::value_high,
 };
 
 use self::constants::*;
@@ -198,21 +197,21 @@ impl Device for Ic74373 {
 
     fn update(&mut self, event: &LevelChange) {
         match event {
-            LevelChange(pin, _, level) if INPUTS.contains(&number!(pin)) => {
+            LevelChange(pin) if INPUTS.contains(&number!(pin)) => {
                 if high!(self.pins[LE]) && !high!(self.pins[OE]) {
                     let q = output_for(number!(pin));
-                    if value_high(*level) {
+                    if high!(pin) {
                         set!(self.pins[q]);
                     } else {
                         clear!(self.pins[q]);
                     }
                 }
             }
-            LevelChange(pin, _, level) if number!(pin) == LE => {
-                if value_high(*level) {
+            LevelChange(pin) if number!(pin) == LE => {
+                if high!(pin) {
                     for (i, d) in IntoIterator::into_iter(INPUTS).enumerate() {
                         let q = output_for(d);
-                        if value_high(level!(self.pins[d])) {
+                        if high!(self.pins[d]) {
                             set!(self.pins[q]);
                         } else {
                             clear!(self.pins[q]);
@@ -221,7 +220,7 @@ impl Device for Ic74373 {
                     }
                 } else {
                     for (i, d) in IntoIterator::into_iter(INPUTS).enumerate() {
-                        self.latches[i] = if value_high(level!(self.pins[d])) {
+                        self.latches[i] = if high!(self.pins[d]) {
                             Some(1.0)
                         } else {
                             Some(0.0)
@@ -229,8 +228,8 @@ impl Device for Ic74373 {
                     }
                 }
             }
-            LevelChange(pin, _, level) if number!(pin) == OE => {
-                if value_high(*level) {
+            LevelChange(pin) if number!(pin) == OE => {
+                if high!(pin) {
                     for q in OUTPUTS {
                         float!(self.pins[q]);
                     }
@@ -240,7 +239,7 @@ impl Device for Ic74373 {
                         let q = output_for(d);
                         if latched {
                             set_level!(self.pins[q], self.latches[i]);
-                        } else if value_high(level!(self.pins[d])) {
+                        } else if high!(self.pins[d]) {
                             set!(self.pins[q]);
                         } else {
                             clear!(self.pins[q]);

@@ -97,4 +97,4 @@ impl Debug for dyn Device {
 }
 
 #[derive(Clone, Debug)]
-pub struct LevelChange<'a>(pub Rc<RefCell<&'a Pin>>, pub Option<f64>, pub Option<f64>);
+pub struct LevelChange<'a>(pub Rc<RefCell<&'a Pin>>);

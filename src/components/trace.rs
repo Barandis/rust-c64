@@ -306,7 +306,7 @@ mod test {
     impl Device for TestDevice {
         fn update(&mut self, event: &LevelChange) {
             self.count += 1;
-            self.level = event.2;
+            self.level = level!(event.0);
         }
 
         fn pins(&self) -> Vec<PinRef> {

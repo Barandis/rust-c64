@@ -219,7 +219,7 @@ impl Pin {
         let new_level = normalize(level, self.float);
         if self.input() && new_level != old_level {
             self.level = new_level;
-            self.notify(old_level, new_level);
+            self.notify();
         }
     }
 
@@ -324,9 +324,9 @@ impl Pin {
     }
 
     /// Notifies this pin's observers of a change to its
-    fn notify(&self, old_level: Option<f64>, new_level: Option<f64>) {
+    fn notify(&self) {
         let pin = Rc::new(RefCell::new(self));
-        let event = &LevelChange(pin, old_level, new_level);
+        let event = &LevelChange(pin);
         for ob in self.device.iter() {
             ob.borrow_mut().update(event);
         }
@@ -866,7 +866,7 @@ mod test {
     impl Device for TestDevice {
         fn update(&mut self, event: &LevelChange) {
             self.count += 1;
-            self.level = event.2;
+            self.level = level!(event.0);
         }
 
         fn pins(&self) -> Vec<PinRef> {

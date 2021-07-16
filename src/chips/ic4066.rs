@@ -47,7 +47,6 @@ use crate::{
         },
     },
     ref_vec::RefVec,
-    utils::value_high,
 };
 
 use self::constants::*;
@@ -205,12 +204,12 @@ impl Device for Ic4066 {
     fn update(&mut self, event: &LevelChange) {
         match event {
             // Control pin change
-            LevelChange(pin, _, level) if CONTROLS.contains(&number!(pin)) => {
+            LevelChange(pin) if CONTROLS.contains(&number!(pin)) => {
                 let (a, b) = ios_for(number!(pin));
                 let apin = clone_ref!(self.pins[a]);
                 let bpin = clone_ref!(self.pins[b]);
 
-                if value_high(*level) {
+                if high!(pin) {
                     // Control pin high: change I/O pins to Input mode so that they don't
                     // broadcast data but can receive it to be stored
                     set_mode!(apin, Input);
@@ -235,13 +234,13 @@ impl Device for Ic4066 {
             }
             // I/O pin change: remember the index of the pin being changed, and if the
             // control pin is low, set the level of the associated I/O pin to the new level
-            LevelChange(pin, _, level) if IOS.contains(&number!(pin)) => {
+            LevelChange(pin) if IOS.contains(&number!(pin)) => {
                 let (out, x) = io_control_for(number!(pin));
                 let index = switch(x);
 
                 self.last[index] = Some(number!(pin));
-                if low!(self.pins[x]) {
-                    set_level!(self.pins[out], *level);
+                if !high!(self.pins[x]) {
+                    set_level!(self.pins[out], level!(pin));
                 }
             }
             _ => {}

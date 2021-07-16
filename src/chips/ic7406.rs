@@ -52,7 +52,6 @@ use crate::{
         },
     },
     ref_vec::RefVec,
-    utils::value_high,
 };
 
 use self::constants::*;
@@ -224,9 +223,9 @@ impl Device for Ic7406 {
 
     fn update(&mut self, event: &LevelChange) {
         match event {
-            LevelChange(pin, _, level) if INPUTS.contains(&number!(pin)) => {
+            LevelChange(pin) if INPUTS.contains(&number!(pin)) => {
                 let o = output_for(number!(pin));
-                if value_high(*level) {
+                if high!(pin) {
                     clear!(self.pins[o]);
                 } else {
                     set!(self.pins[o]);

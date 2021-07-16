@@ -135,7 +135,6 @@ use crate::{
         },
     },
     ref_vec::RefVec,
-    utils::value_high,
 };
 
 use self::constants::*;
@@ -401,12 +400,12 @@ impl Device for Ic82S100 {
 
     fn update(&mut self, event: &LevelChange) {
         macro_rules! value_in {
-            ($pin:expr, $target:expr, $level:expr) => {
-                value_high(if number!($pin) == $target {
-                    *$level
+            ($pin:expr, $target:expr) => {
+                if number!($pin) == $target {
+                    high!($pin)
                 } else {
-                    level!(self.pins[$target])
-                })
+                    high!(self.pins[$target])
+                }
             };
         }
         macro_rules! value_out {
@@ -419,7 +418,7 @@ impl Device for Ic82S100 {
         }
 
         match event {
-            LevelChange(pin, _, level) if number!(pin) == OE && value_high(*level) => {
+            LevelChange(pin) if number!(pin) == OE && high!(pin) => {
                 float!(
                     self.pins[F0],
                     self.pins[F1],
@@ -431,7 +430,7 @@ impl Device for Ic82S100 {
                     self.pins[F7]
                 );
             }
-            LevelChange(pin, _, level) => {
+            LevelChange(pin) => {
                 // These are the product term equations programmed into the PLA for use in a
                 // C64. The names for each signal reflect the names of the pins that those
                 // signals come from, and while that is an excellent way to make long and
@@ -467,22 +466,22 @@ impl Device for Ic82S100 {
                 // skoe.de/docs/c64-dissected/pla/c64_pla_dissected_a4ds.pdf. If this sort
                 // of thing interests you, there's no better place for information about the
                 // C64 PLA.
-                let cas = value_in!(pin, CAS, level);
-                let loram = value_in!(pin, LORAM, level);
-                let hiram = value_in!(pin, HIRAM, level);
-                let charen = value_in!(pin, CHAREN, level);
-                let va14 = value_in!(pin, VA14, level);
-                let a15 = value_in!(pin, A15, level);
-                let a14 = value_in!(pin, A14, level);
-                let a13 = value_in!(pin, A13, level);
-                let a12 = value_in!(pin, A12, level);
-                let ba = value_in!(pin, BA, level);
-                let aec = value_in!(pin, AEC, level);
-                let r_w = value_in!(pin, R_W, level);
-                let exrom = value_in!(pin, EXROM, level);
-                let game = value_in!(pin, GAME, level);
-                let va13 = value_in!(pin, VA13, level);
-                let va12 = value_in!(pin, VA12, level);
+                let cas = value_in!(pin, CAS);
+                let loram = value_in!(pin, LORAM);
+                let hiram = value_in!(pin, HIRAM);
+                let charen = value_in!(pin, CHAREN);
+                let va14 = value_in!(pin, VA14);
+                let a15 = value_in!(pin, A15);
+                let a14 = value_in!(pin, A14);
+                let a13 = value_in!(pin, A13);
+                let a12 = value_in!(pin, A12);
+                let ba = value_in!(pin, BA);
+                let aec = value_in!(pin, AEC);
+                let r_w = value_in!(pin, R_W);
+                let exrom = value_in!(pin, EXROM);
+                let game = value_in!(pin, GAME);
+                let va13 = value_in!(pin, VA13);
+                let va12 = value_in!(pin, VA12);
 
                 // LORAM deselected, HIRAM deselected
                 // $A000 - $BFFF
