@@ -22,7 +22,7 @@ macro_rules! pin {
 }
 
 macro_rules! pins {
-    ($($pin:expr),* $(,)?) => {
+    ($($pin:expr),* $(,)?) => (
         {
             let mut v = refvec![
                 pin!(
@@ -35,12 +35,12 @@ macro_rules! pins {
             v.sort_by(|a, b| a.borrow().number().cmp(&b.borrow().number()));
             v
         }
-    }
+    );
 }
 
 #[cfg(test)]
 macro_rules! trace {
-    ($($pin:expr),* $(,)?) => {
+    ($($pin:expr),* $(,)?) => (
         {
             let v = vec![$(std::rc::Rc::clone(&$pin)),*];
             let t = $crate::components::trace::Trace::new(
@@ -51,7 +51,7 @@ macro_rules! trace {
             }
             t
         }
-    };
+    );
 }
 
 macro_rules! new_ref {
@@ -110,21 +110,21 @@ macro_rules! floating {
 }
 
 macro_rules! set {
-    ($($pt:expr),* $(,)?) => {
+    ($($pt:expr),* $(,)?) => (
         $($pt.borrow_mut().set();)*
-    };
+    );
 }
 
 macro_rules! clear {
-    ($($pt:expr),* $(,)?) => {
+    ($($pt:expr),* $(,)?) => (
         $($pt.borrow_mut().clear();)*
-    };
+    );
 }
 
 macro_rules! float {
-    ($($pt:expr),* $(,)?) => {
+    ($($pt:expr),* $(,)?) => (
         $($pt.borrow_mut().float();)*
-    };
+    );
 }
 
 #[cfg(test)]
@@ -181,7 +181,7 @@ macro_rules! detach {
 }
 
 macro_rules! attach_to {
-    ($device:expr, $($pin:expr),+ $(,)?) => {
+    ($device:expr, $($pin:expr),+ $(,)?) => (
         $(attach!($pin, clone_ref!($device)));+
-    };
+    );
 }
