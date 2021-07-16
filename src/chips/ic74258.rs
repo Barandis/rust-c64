@@ -49,7 +49,7 @@ use crate::{
         device::{Device, DeviceRef, LevelChange},
         pin::{
             Mode::{Input, Output, Unconnected},
-            Pin, PinRef,
+            Pin,
         },
     },
     ref_vec::RefVec,
@@ -168,7 +168,7 @@ fn output_for(input: usize) -> usize {
 }
 
 impl Device for Ic74258 {
-    fn pins(&self) -> Vec<PinRef> {
+    fn pins(&self) -> RefVec<Pin> {
         self.pins.clone()
     }
 

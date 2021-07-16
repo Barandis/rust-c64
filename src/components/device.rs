@@ -9,9 +9,12 @@ use std::{
     rc::Rc,
 };
 
-use crate::components::pin::{
-    Mode::{Bidirectional, Input, Output, Unconnected},
-    Pin, PinRef,
+use crate::{
+    components::pin::{
+        Mode::{Bidirectional, Input, Output, Unconnected},
+        Pin,
+    },
+    ref_vec::RefVec,
 };
 
 pub type DeviceRef = Rc<RefCell<dyn Device>>;
@@ -31,7 +34,7 @@ pub trait Device {
     // have two const generics...and since we can't infer const generics yet, that's a
     // problem. Each of Trace's Pins can come from different Devices, meaning they'd have
     // different const generics, and we can't yet express that.
-    fn pins(&self) -> Vec<PinRef>;
+    fn pins(&self) -> RefVec<Pin>;
     // Also would like to use an array here, but same const generic problem.
     fn registers(&self) -> Vec<u8>;
     fn update(&mut self, event: &LevelChange);
@@ -48,7 +51,7 @@ pub trait Device {
                 str.push_str(" pins: [");
             }
 
-            for pin in self.pins() {
+            for pin in self.pins().iter() {
                 if name!(pin) != DUMMY {
                     str.push_str("(number = ");
                     str.push_str(format!("{}", number!(pin)).as_str());

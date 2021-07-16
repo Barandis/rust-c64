@@ -282,7 +282,13 @@ impl Debug for Trace {
 
 #[cfg(test)]
 mod test {
-    use crate::components::device::{Device, LevelChange};
+    use crate::{
+        components::{
+            device::{Device, LevelChange},
+            pin::Pin,
+        },
+        ref_vec::RefVec,
+    };
 
     use super::*;
     use crate::components::pin::Mode::{Bidirectional, Input, Output, Unconnected};
@@ -309,8 +315,8 @@ mod test {
             self.level = level!(event.0);
         }
 
-        fn pins(&self) -> Vec<PinRef> {
-            Vec::new()
+        fn pins(&self) -> RefVec<Pin> {
+            RefVec::new()
         }
 
         fn registers(&self) -> Vec<u8> {

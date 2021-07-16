@@ -131,7 +131,7 @@ use crate::{
         device::{Device, DeviceRef, LevelChange},
         pin::{
             Mode::{Input, Output, Unconnected},
-            Pin, PinRef,
+            Pin,
         },
     },
     ref_vec::RefVec,
@@ -390,7 +390,7 @@ impl Ic82S100 {
 }
 
 impl Device for Ic82S100 {
-    fn pins(&self) -> Vec<PinRef> {
+    fn pins(&self) -> RefVec<Pin> {
         self.pins.clone()
     }
 

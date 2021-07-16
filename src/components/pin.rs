@@ -372,6 +372,7 @@ impl Debug for Pin {
 #[cfg(test)]
 mod test {
     use crate::components::device::Device;
+    use crate::ref_vec::RefVec;
 
     use super::Mode::{Bidirectional, Input, Output, Unconnected};
     use super::*;
@@ -869,8 +870,8 @@ mod test {
             self.level = level!(event.0);
         }
 
-        fn pins(&self) -> Vec<PinRef> {
-            Vec::new()
+        fn pins(&self) -> RefVec<Pin> {
+            RefVec::new()
         }
 
         fn registers(&self) -> Vec<u8> {

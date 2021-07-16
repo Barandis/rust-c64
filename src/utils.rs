@@ -33,11 +33,3 @@ pub fn mode_to_pins(mode: Mode, pins: &RefVec<Pin>) {
         set_mode!(pin, mode);
     }
 }
-
-#[inline]
-pub fn value_high(value: Option<f64>) -> bool {
-    match value {
-        Some(v) if v >= 0.5 => true,
-        _ => false,
-    }
-}

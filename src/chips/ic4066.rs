@@ -43,7 +43,7 @@ use crate::{
         device::{Device, DeviceRef, LevelChange},
         pin::{
             Mode::{Bidirectional, Input, Unconnected},
-            Pin, PinRef,
+            Pin,
         },
     },
     ref_vec::RefVec,
@@ -193,7 +193,7 @@ fn switch(control: usize) -> usize {
 }
 
 impl Device for Ic4066 {
-    fn pins(&self) -> Vec<PinRef> {
+    fn pins(&self) -> RefVec<Pin> {
         self.pins.clone()
     }
 
