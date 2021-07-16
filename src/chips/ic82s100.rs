@@ -808,7 +808,7 @@ mod test {
 
     fn before_each() -> (DeviceRef, RefVec<Trace>, RefVec<Trace>, RefVec<Trace>) {
         let device = Ic82S100::new();
-        let tr = make_traces(clone_ref!(device));
+        let tr = make_traces(&device);
 
         let trin = RefVec::with_vec(
             IntoIterator::into_iter(INPUTS)

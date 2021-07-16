@@ -8,7 +8,7 @@ use crate::{
     ref_vec::RefVec,
 };
 
-pub fn make_traces(device: DeviceRef) -> RefVec<Trace> {
+pub fn make_traces(device: &DeviceRef) -> RefVec<Trace> {
     let mut v = vec![];
     for pin in device.borrow().pins().iter() {
         v.push(trace!(clone_ref!(pin)));

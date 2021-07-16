@@ -245,7 +245,7 @@ mod test {
 
     fn before_each() -> (DeviceRef, RefVec<Trace>) {
         let chip = Ic7406::new();
-        let tr = make_traces(clone_ref!(chip));
+        let tr = make_traces(&chip);
         (chip, tr)
     }
 
