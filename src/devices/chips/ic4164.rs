@@ -154,15 +154,39 @@ const PA_ADDRESS: [usize; 8] = [A0, A1, A2, A3, A4, A5, A6, A7];
 /// In the Commodore 64, U9, U10, U11, U12, U21, U22, U23, and U24 are 4164s, one for each
 /// of the 8 bits on the data bus.
 pub struct Ic4164 {
+    /// The pins of the 4164, along with a dummy pin (at index 0) to ensure that the vector
+    /// index of the others matches the 1-based pin assignments.
     pins: RefVec<Pin>,
+
+    /// Separate references to the A0-A7 pins in the `pins` vector.
     addr_pins: RefVec<Pin>,
+
+    /// The place where the data is actually stored. The 4164 is 1-bit memory that is stored
+    /// in a 256x256 matrix internally, but we don't have either u1 or u256 types (bools
+    /// don't count; they actually take up much more than 1 bit of memory space). Instead we
+    /// pack the bits into an array of 2048 u32s, which we then address through a function
+    /// that resolves the row and column into an array index and an index to the bit inside
+    /// the u32 value at that array index.
     memory: [u32; 2048],
+
+    /// The latched row value taken from the pins when RAS transitions low. If no row has
+    /// been latched (RAS hasn't yet gone low), this will be `None`.
     row: Option<u8>,
+
+    /// The latched column value taken from the pins when CAS transitions low. If no column
+    /// has been latched (CAS hasn't yet gone low), this will be `None`.
     col: Option<u8>,
+
+    /// The latched data bit taken from the D pin. This is latched just before a write takes
+    /// place and is done so that its value can replace the Q pin's value in RMW mode
+    /// easily. If no data has been latched (either WE or CAS is not low), this will be
+    /// `None`.
     data: Option<u8>,
 }
 
 impl Ic4164 {
+    /// Creates a new 4164 64k x 1 dynamic RAM emulation and returns a shared, internally
+    /// mutable reference to it.
     pub fn new() -> DeviceRef {
         // Address pins 0-7.
         let a0 = pin!(A0, "A0", Input);
@@ -252,7 +276,9 @@ impl Ic4164 {
 
     /// Writes the value of the D pin to a single bit in the memory array. If the Q pin is
     /// also connected, the value is also sent to it; this happens only in RMW mode and
-    /// keeps the input and output data pins synched.
+    /// keeps the input and output data pins synched. (This guaranteed sync means that the
+    /// C64 can connect these two pins with a PC board trace, but the C64 doesn't use RMW
+    /// mode.)
     fn write(&mut self) {
         let (index, bit) = self.resolve();
         if self.data.unwrap() == 1 {
