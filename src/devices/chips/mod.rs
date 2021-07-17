@@ -5,6 +5,7 @@
 
 mod ic2114;
 mod ic4066;
+mod ic4164;
 mod ic7406;
 mod ic7408;
 mod ic74139;
@@ -15,6 +16,7 @@ mod ic82s100;
 
 pub use self::ic2114::Ic2114;
 pub use self::ic4066::Ic4066;
+pub use self::ic4164::Ic4164;
 pub use self::ic7406::Ic7406;
 pub use self::ic7408::Ic7408;
 pub use self::ic74139::Ic74139;

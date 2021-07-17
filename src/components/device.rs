@@ -53,20 +53,33 @@ pub trait Device {
 
             for pin in self.pins().iter() {
                 if name!(pin) != DUMMY {
-                    str.push_str("(number = ");
-                    str.push_str(format!("{}", number!(pin)).as_str());
-                    str.push_str(", name = ");
-                    str.push_str(name!(pin));
-                    str.push_str(", mode = ");
-                    str.push_str(match mode!(pin) {
-                        Unconnected => "Unconnected",
-                        Input => "Input",
-                        Output => "Output",
-                        Bidirectional => "Bidirectional",
-                    });
-                    str.push_str(", level = ");
-                    str.push_str(format!("{:?}", level!(pin)).as_str());
-                    str.push(')');
+                    str.push_str(
+                        format!(
+                            "[{0:>1$}] {2:3$} ({4}): {5}",
+                            number!(pin),
+                            if alt { 2 } else { 1 },
+                            name!(pin),
+                            if alt { 6 } else { 1 },
+                            match mode!(pin) {
+                                Unconnected => "U",
+                                Input => "I",
+                                Output => "O",
+                                Bidirectional => "B",
+                            },
+                            match level!(pin) {
+                                Some(v) =>
+                                    if v == 0.0 {
+                                        String::from("0")
+                                    } else if v == 1.0 {
+                                        String::from("1")
+                                    } else {
+                                        format!("{}", v)
+                                    },
+                                None => String::from("-"),
+                            }
+                        )
+                        .as_str(),
+                    );
                     if number!(pin) < len - 1 {
                         if alt {
                             str.push_str(",\n        ");

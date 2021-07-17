@@ -102,7 +102,6 @@ macro_rules! low {
     };
 }
 
-#[cfg(test)]
 macro_rules! floating {
     ($pt:expr $(,)?) => {
         $pt.borrow().floating()

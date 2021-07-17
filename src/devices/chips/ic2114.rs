@@ -48,7 +48,10 @@ pub mod constants {
 use crate::{
     components::{
         device::{Device, DeviceRef, LevelChange},
-        pin::{Mode::*, Pin, PinRef},
+        pin::{
+            Mode::{Input, Output, Unconnected},
+            Pin, PinRef,
+        },
     },
     ref_vec::RefVec,
     utils::{mode_to_pins, pins_to_value, value_to_pins},
