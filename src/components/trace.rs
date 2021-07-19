@@ -287,7 +287,7 @@ mod test {
             device::{Device, LevelChange},
             pin::Pin,
         },
-        ref_vec::RefVec,
+        vectors::RefVec,
     };
 
     use super::*;

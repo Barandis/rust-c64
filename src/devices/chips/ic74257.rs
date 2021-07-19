@@ -52,7 +52,7 @@ use crate::{
             Pin,
         },
     },
-    ref_vec::RefVec,
+    vectors::RefVec,
 };
 
 use self::constants::*;

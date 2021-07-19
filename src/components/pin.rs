@@ -372,7 +372,7 @@ impl Debug for Pin {
 #[cfg(test)]
 mod test {
     use crate::components::device::Device;
-    use crate::ref_vec::RefVec;
+    use crate::vectors::RefVec;
 
     use super::Mode::{Bidirectional, Input, Output, Unconnected};
     use super::*;

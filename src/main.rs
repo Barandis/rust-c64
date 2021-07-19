@@ -8,8 +8,9 @@ mod macros;
 
 pub mod components;
 pub mod devices;
-pub mod ref_vec;
+pub mod roms;
 pub mod utils;
+pub mod vectors;
 
 #[cfg(test)]
 pub mod test_utils;

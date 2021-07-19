@@ -14,7 +14,7 @@ use crate::{
         Mode::{Bidirectional, Input, Output, Unconnected},
         Pin,
     },
-    ref_vec::RefVec,
+    vectors::RefVec,
 };
 
 pub type DeviceRef = Rc<RefCell<dyn Device>>;

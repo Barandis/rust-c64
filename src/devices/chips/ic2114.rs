@@ -53,8 +53,8 @@ use crate::{
             Pin, PinRef,
         },
     },
-    ref_vec::RefVec,
     utils::{mode_to_pins, pins_to_value, value_to_pins},
+    vectors::RefVec,
 };
 
 use self::constants::*;

@@ -5,7 +5,7 @@
 
 use crate::{
     components::{device::DeviceRef, trace::Trace},
-    ref_vec::RefVec,
+    vectors::RefVec,
 };
 
 pub fn make_traces(device: &DeviceRef) -> RefVec<Trace> {

@@ -5,13 +5,13 @@
 
 macro_rules! refvec {
     () => (
-        $crate::ref_vec::RefVec::new()
+        $crate::vectors::RefVec::new()
     );
     ($item:expr, $n:expr) => (
-        $crate::ref_vec::RefVec::with_vec(vec![$item; $n])
+        $crate::vectors::RefVec::with_vec(vec![$item; $n])
     );
     ($($x:expr),+ $(,)?) => (
-        $crate::ref_vec::RefVec::with_vec(vec![$($x),+])
+        $crate::vectors::RefVec::with_vec(vec![$($x),+])
     );
 }
 

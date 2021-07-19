@@ -5,7 +5,7 @@
 
 use crate::{
     components::pin::{Mode, Pin},
-    ref_vec::RefVec,
+    vectors::RefVec,
 };
 
 #[inline]
@@ -24,6 +24,13 @@ pub fn pins_to_value(pins: &RefVec<Pin>) -> usize {
 pub fn value_to_pins(value: usize, pins: &RefVec<Pin>) {
     for (i, pin) in pins.iter_ref().enumerate() {
         set_level!(pin, Some(((value >> i) & 1) as f64));
+    }
+}
+
+#[inline]
+pub fn none_to_pins(pins: &RefVec<Pin>) {
+    for pin in pins.iter_ref() {
+        float!(pin);
     }
 }
 
